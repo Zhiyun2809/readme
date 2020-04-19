@@ -1251,3 +1251,44 @@ for i, row in enumerate(rows,1):
     for j,col in enumerate(row,1):
         ws.cell(row=i,column=j,value=col)
 wb.save('file.xlsx')
+
+#===============================
+# 
+try:
+    ..
+except Exception as e:
+    print(e)
+    raise e
+
+
+#===============================
+# print dict
+data={'city':1,'region':12,'country':23}
+print("{city}, {region},{country}".format(**data))
+
+#===============================
+$pip install requests
+$pip install numpy simpleaudio
+# opencv
+$pip install opencv-contrib-python imageio
+# PEP python enhance protocol 
+# pycodestyle: check python code against style convention
+$pip install pycodestyle
+$pycodestyle code.py
+# flake8: comtinges a debutter, pyflates with pycodestyle
+$pip install flake8
+$flake8 code.py
+# auto formatters
+$pip install black
+$black code.py
+# alter linelength limit
+$black --line-length=79 code.py
+
+#===============================
+file_name[-3:]=='jpg'
+if file_name.endswith('jpg'):
+    print(file_name)
+file_name[:3]=='jpg'
+if file_name.startswith('jpg'):
+
+
