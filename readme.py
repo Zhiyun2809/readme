@@ -1292,3 +1292,24 @@ file_name[:3]=='jpg'
 if file_name.startswith('jpg'):
 
 
+#===============================
+#unit test pandas
+import pandas as pd
+pd.testing.assert_frame_equal(my_df,expected_df)
+pd.testing.assert_series_equal(my_series,expected_series)
+pd.testing.assert_index_euqal(my_index,expected_index)
+
+#===============================
+# python program strucutre
+# smart_door.py
+def close():
+    pass
+def open():
+    pass
+
+import smart_door
+smart_door.open()
+smart_door.close()
+# alternative
+from smart_door import open
+open()
