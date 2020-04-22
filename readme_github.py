@@ -229,3 +229,5 @@ $ git clone https://github.com/Zhiyun2809/mysite.git another-name
 # get latest version
 $ git pull
 
+# compare between different branch
+$ git diff <branch1> <branch2>
