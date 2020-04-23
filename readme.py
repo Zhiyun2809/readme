@@ -233,7 +233,10 @@ df = pd.read_csv('ABC.csv') #read cvs
 df2 = df.loc[0:12] #select rows
 # get rid of "Unnamed:0"
 df = pd.read_csv('file.txt',index_col=[0])
-
+# selective read
+df = pd.read_csv('file.csv').query('year==1986')
+# sort data
+df.sort_values('age',inplace=True)
 # set index as Date
 df2['Date'] = pd.to_datetime(df2['Date'])
 df2.set_index('Date', inplace=True) #set Date as index
@@ -358,6 +361,9 @@ np.stack(A)
 np.nansum(mat)
 np.nanmax(mat)
 np.nanmin(mat)
+
+ret = [2,3.4,54]
+mean = np.mean(ret)
 
 
 #transfer boolean into string
