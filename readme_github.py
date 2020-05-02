@@ -41,10 +41,10 @@ $ git reset --soft HEAD
 $ git add file-i-forgot-to-add.html
 $ git commit --amend -m "add the remaining file"
 # individual commit for file a and file b
-$git add a
-$git commit a -m "bugfix, in a"
-$git add b
-$git commit b -m "bugfix, in b"
+$git add file_a
+$git commit file_a -m "bugfix, in a"
+$git add file_b
+$git commit file_b -m "bugfix, in b"
 # commit all existing file
 $git add --all
 $git commit -a

@@ -896,6 +896,53 @@ fig,axs = plt.subplots(2,1,sharex=True)
 st=fig.suptitle('title',fontsize='x-large')
 st.set_y(0.9)
 st.set_x(0.45)
+axs[0].set_title('title1')
+axs[1].set_title('title1')
+
+#rotate xticks
+g = sns.boxplot(x='log',y='count',data=df)
+g.set_xticklabels(g.get_xticklabels(),rotation=90)
+
+#matplotlit
+plt.xticks(rotation=90)
+
+#================================================== 
+#assign same color palette to different plot
+sns.set_style('white')
+pal = sns.color_pallette('Paired')
+
+sns.boxplot(x='site',y='value',hue='label',data=df,
+        palette=pal,fliersize=0)
+sns.stripplot(x='site',y='value',hue='label',data=df,
+        jitter=True,split=True,linewidth=0.5,palette=pal)
+plt.legend(loc='upper left')
+
+#specify standard color to label 
+pal = {'healthy':'green','disease':'blue'}
+
+#specify specified color to label
+dark_brown = '#B25116'
+dark_pink = '#FB84D1'
+pal = {'healthy': dark_brown,'disease': dark_pink}
+
+# pass setting using dict
+fig,ax = plt.subplots()
+stripplot_kwargs = dict({'linewidth':0.6, 'size':6,'alpha': 0.7}, **kwargs)
+sns.stripplot(x='x',y='value',hue='label',data=df,fliersize=0,ax=ax,**kwargs)
+ax.legend_.remove()
+# legend -> keep first 2 legend
+handles, labels = ax.get_legendhandles_labels()
+lgd = ax.legend(handles[0:2], labels[0:2],
+        loc = 'upper left',
+        fontsize = 'large',
+        handletextpad = 0.5)
+lgd.legendHandles[0]._sizes=[40]
+lgd.legendHandles[1]._sizes=[40]
+
+# add text to plot
+sns.scatter(x='time',y='printtime',data=di,ax=ax)
+for idx in di.index:
+    ax.text(di.at[idx,'time'],di.at[idx,'printtime'],idx)
 
 
 #================================================== 
