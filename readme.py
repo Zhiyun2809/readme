@@ -235,6 +235,8 @@ df2 = df.loc[0:12] #select rows
 df = pd.read_csv('file.txt',index_col=[0])
 # selective read
 df = pd.read_csv('file.csv').query('year==1986')
+# read first nrows 
+df = pd.read_csv('file.csv',nrows=100)
 # sort data
 df.sort_values('age',inplace=True)
 # set index as Date
@@ -905,6 +907,7 @@ g.set_xticklabels(g.get_xticklabels(),rotation=90)
 
 #matplotlit
 plt.xticks(rotation=90)
+plt.xticks(df.index[::10],rotation=90)
 
 #================================================== 
 #assign same color palette to different plot
