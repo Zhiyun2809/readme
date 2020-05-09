@@ -754,7 +754,7 @@ sns.set(style="darkgrid")
 
 sns.scatterplot(x="total_bill",y="tip",hue="size",style="smoke",data=df)
 #move legend outside
-plt.legend(bbox_to_anchor=(1.05,1),loc=2)
+plt.legend(title='mytitle',bbox_to_anchor=(1.05,1),loc=2)
 plt.legend(bbox_to_anchor=(1.05,1),loc=2,borderaxesspad=0.)
 
 sns.jointplot(x="x",y="y",data=df)
@@ -812,7 +812,8 @@ for p iin splot.patches:
             ha='center',
             va='center',
             xytext=(0,10),
-            textcoords='offset points')
+            textcoords='offset points',
+            size=8)
 
 #================================================== 
 # matplotlib
