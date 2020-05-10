@@ -115,6 +115,12 @@ df.filter(regex='^c',axis=0) # select row name starting with 'c'
 df = df[df['Name'].str.contains(r'\d{2} \d{5} \d{5}')==False]
 
 df = df.reset_index(drop = True)
+# rename columns
+df.rename(columns={"old_name":"new_name"},inplace=True)
+
+# rolling operation
+df['rolling_mean']=df['close'].rolling(window=3).mean()
+
 # handling redundacy
 df.drop_duplicates()
 # fine top 3 words 
@@ -382,6 +388,11 @@ df_vote = pd.DataFrame({'vote':np.where(np.random.rand(n) < 0.1,'Brown','Green')
 # load file to cell
 %load ../lib/myfuncs.py
 
+# add project folder to sys path
+import sys
+path ="" 
+sys.path.append(path)
+
 # Enable automatic reload of libraries
 %load_ext autoreload 
 %autoreload 2 # means that all modules are reloaded before every command
@@ -405,6 +416,8 @@ from lib.funcs import *
 Ctrl+Shift+-
 # merge cell
 shift M
+# inline images
+%matplotlib inline
 #================================================== 
 from tqdm import tqdm
 #================================================== 
