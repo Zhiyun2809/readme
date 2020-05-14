@@ -105,6 +105,12 @@ part_grp = data.groupby('group').size()[0]
 dict_vote = {'vote':np.where(np.random.rand(n) < 0.1,'Brown','Green')}
 df_vote = pd.DataFrame({'vote':np.where(np.random.rand(n) < 0.1,'Brown','Green')})
 
+# create dataframe from series
+c = pd.DataFrame({'mean':df_mean,'std':df_std})
+
+# transpose
+df_t = df.transpose()
+
 #filter row by list of strings
 cleaned = df[~df['stn'].isin(remove_list)]
 # 
@@ -392,6 +398,7 @@ df_vote = pd.DataFrame({'vote':np.where(np.random.rand(n) < 0.1,'Brown','Green')
 import sys
 path ="" 
 sys.path.append(path)
+print(sys.path)
 
 # Enable automatic reload of libraries
 %load_ext autoreload 
@@ -440,6 +447,9 @@ path=os.path.abspath(os.getcwd())
 path = os.path.abspath(os.path.join(os.getcwd(),".."))
 # get paht 2 level up
 path = os.path.abspath(os.path.join(os.getcwd(),"../.."))
+
+# split path
+nb_dir = os.path.split(os.getcwd())
 
 # rename folder
 os.rename(os.path.join(base_folder,old),os.path.join(base_folder,new))
