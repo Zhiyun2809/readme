@@ -386,6 +386,13 @@ string_array = np.where(np.random.rand(5)>0.51,'Brown','Green')
 dict_vote = {'vote':np.where(np.random.rand(n) < 0.1,'Brown','Green')}
 df_vote = pd.DataFrame({'vote':np.where(np.random.rand(n) < 0.1,'Brown','Green')})
 
+#polynomial regression
+z = np.polyfig(percX,percUp,degree)
+f = np.poly1d(z)
+x_new = np.linspace(0.1,2.1,50)
+y_new = f(x_new)
+plt.plot(x_new, y_new, 'r--')
+
 #================================================== 
 # jupyter
 #================================================== 
@@ -782,6 +789,12 @@ sns.scatterplot(x="total_bill",y="tip",hue="size",style="smoke",data=df)
 plt.legend(title='mytitle',bbox_to_anchor=(1.05,1),loc=2)
 plt.legend(bbox_to_anchor=(1.05,1),loc=2,borderaxesspad=0.)
 
+# add margin to plot
+plt.margins(1)
+
+#plot 
+plt.plot(X,Y,'.')
+
 sns.jointplot(x="x",y="y",data=df)
 sns.jointplot(x="x",y="y",data=df,kind="kde")
 
@@ -908,6 +921,11 @@ ax2.set_title('title 2')
 # hide legend
 axs.get_legend().set_visible(False)
 
+# equal
+axs[i,j].settitle('title',fontsize=10)
+axs[i,j].axis('equal')
+axs[i,j].set_aspect('equal','box')
+
 # plot meshgrid
 x_min, x_max = X[:,0].min()-1, X[:,0].max()+1
 y_min, y_max = X[:,1].min()-1, X[:,1].max()+1
@@ -979,6 +997,9 @@ plt.axvline(df['income'].mean(),c='C1')
 plt.axvline(df['income'].median(),c='C1',linestyle='--')
 plt.axvline(df['income'].quantile(0.24),c='C1',linestyle=':')
 plt.axvline(df['income'].quantile(0.75),c='C1',linestyle=':')
+
+# vline
+plt.vlines(x,ymin,ymax,colos,linestyles)
 
 
 #================================================== 
