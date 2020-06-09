@@ -213,6 +213,9 @@ df['age'] = df['sexage'].str.slide(1)
 df['A'].str.extract('(\d+)')
 df['A'].str.extract('(^\d+)')
 
+# split digits in string
+df['A'].str.split('(\d+)',expand=True)
+
 # if contains string
 df_fandry = df[df['log'].str.contains('3s',regex=True)]
 # if not contains string
@@ -837,6 +840,14 @@ sns.set(style="darkgrid")
 
 sns.scatterplot(x="total_bill",y="tip",hue="size",style="smoke",data=df)
 
+sns.catplot(x='speed',y='tc',hue='sample',cat='type',data=df)
+g.set_axis_labels("","Totla number of TargetCells")
+plt.subplots_adjust(top=0.8)
+g.fig.suptitle('Title')
+
+sns.set_context('paper',fontsize=1.2)
+        
+
 #move legend outside
 plt.legend(title='mytitle',bbox_to_anchor=(1.05,1),loc=2)
 plt.legend(bbox_to_anchor=(1.05,1),loc=2,borderaxesspad=0.)
@@ -1007,7 +1018,7 @@ plt.xticks(df.index[::10],rotation=90)
 
 #================================================== 
 #assign same color palette to different plot
-sns.set_style('white')
+sns.set_style('white',font_scale=1.2)
 pal = sns.color_pallette('Paired')
 
 sns.boxplot(x='site',y='value',hue='label',data=df,
@@ -1139,24 +1150,35 @@ learn.save('stage-1')   # workflow 1
 #plot losses
 learn.recorder.plot_losses()
 # re-train start
-learn.unfreeze()
-learn.lr_find()                 # lr_find(learn)
-learn.recorder.plot()           #plor learning rate
-learn.recorder.plot_losses()    #plot training and validation loss
-learn.recorder.plot_lr()        #plot lr
-learn.fit_one_cycle(2,max_lr=slice(3e-5,3e-4))  # workflow 2
-learn.save('stage-2')
 
+# evaluate results
 interp = ClassificationInterpretation.from_learner(learn)
+interp.plot_top_losses(9, figsize=(15,11))
 interp.plot_confustion_matrix()
+interp.most_confused(min_val=2)
 
-# Clean up
+# Clean up, delete confusing images
 from fastai.widgets import *
 losses,idxs = interp.top_losses()
-top_loss_paths = data.valid_ds.x[idxs]  # x : image path and name , y: image class
+#note all data has in fastai has .x and .y class
+# data.valid_ds, data.train_ds, data.test_ds
+top_loss_paths = data.valid_ds.x[idxs]  # x : image path and name , y: image class/label
 fd = FileDeleter(file_paths=top_lass_paths)
 
-top_loss_paths = data.train_ds.x[idxs]  # x : image path and name , y: image class
+# Clean data
+from fastai.widgets import *
+# read all data
+data = (ImageList.from_folder(path)
+        .split_none()
+        .label_from_folder()
+        .transform(get_transforms(),size=224)
+        .databunch())
+learn_cln = cnn_learner(db, models.resnet34, metrics=error_rate)
+learn_cln.load('stage-2')
+ds,idxs = DatasetFormatter().from_toplosses(learn_cln)
+ds,idxs = DatasetFromatter().from_similars(learn_cln)
+ImageCleaner(ds,idxs,path,duplicates=True)
+
 
 # ipywidget 
 
@@ -1221,8 +1243,7 @@ src = (ImageFileList.from_folder(path),
 
 size = src_size//2      # // : integer divide 
 # reduce size of data
-data = (src.dataset(),
-        .transform(tfms, size=128)      # image size [128x128]
+data = (src.transform(tfms, size=128)      # image size [128x128]
         .databunch(bs=bs).normalize(imagenet_stats)
 # train the learner
 learn.save('stage-1')
@@ -1352,3 +1373,32 @@ data = (TabularList.from_df(df, path=path, cat_names=cat_names,cont_names=cont_n
         .add_test(test, label=0)
         .databunch())
 
+# ===========================================
+# useful methods
+download_images(urls, dest, max_pics)
+verify_images(path, delete=True, max_workers=8)
+
+np.random.seed(42)  # set to 42 to keep generate the same validation set
+data=ImageDataBunch.from_folder(path, train='.', valid_pct=0.2,
+        ds_tfms=get_transforms(), size=224, num_workers=4).normalized(imagenet_stats)
+data.show_batch(row=2,figsize=(7.5))
+data.lclasses, data.c, len(data.train_ds), len(data.valid_ds)
+
+learn.freeze()          # only train the last few layers, keep the majority of info from previosu learner
+learn.unfreeze()                # unfreeze all layers
+
+learn.lr_find()                 # lr_find(learn)
+learn.recorder.plot()           #plor learning rate
+learn.recorder.plot_losses()    #plot training and validation loss
+learn.recorder.plot_lr()        #plot lr
+learn.fit_one_cycle(2,max_lr=slice(3e-5,3e-4))  # workflow 2
+learn.save('stage-2')
+
+interp = ClassificationInterpretation.from_learner(learn)
+interp.plot_confusion_matrix()
+       
+
+
+doc()
+??FileDeleter
+ipywidget
