@@ -246,8 +246,12 @@ sample_multiindex = pd.MultiIndex.from_tuples([('A',1),('A',2),('A',3),('B',1),(
 sample_series_with_multiindex=pd.Series(list(range(100,105)),index=sample_multiindex)
 
 import pandas as pd
+# dataframe from dictionary
 my_dict = {"tester": 1, "testers": 2}
-df=pd.DataFrame(my_dict,index=[0])
+# key as column
+df = pd.DataFrame(my_dict)
+# key as index
+df = pd.DataFrame(my_dict,orient='index')
 df.to_csv("path and name of your csv.csv")
 # set to data frame type to plot
 df = pd.read_csv('ABC.csv') #read cvs
@@ -544,6 +548,11 @@ my_list.popleft()
 # list comprehension
 # transfer all string in a list to int
 int_list = list(map(int, string_list))
+
+# check empty list
+a = []
+if not a:
+    print(f'empty')
 
 #===============================
 # convert list to dictionary keys
