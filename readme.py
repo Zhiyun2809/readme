@@ -1,5 +1,7 @@
 #===============================
-#Numpy
+# Colab include mount my drive 
+from google.colab import drive
+drive.mount('/content/dirve')
 #===============================
 #method for scaling
 from sklearn import preprocessing
@@ -207,6 +209,10 @@ df['First']=df['First'].str.split(expand=True)
 df['sex'] = df['sexage'].str.slice(0,1)
 df['age'] = df['sexage'].str.slide(1)
 
+#extract digits from string
+df['A'].str.extract('(\d+)')
+df['A'].str.extract('(^\d+)')
+
 # if contains string
 df_fandry = df[df['log'].str.contains('3s',regex=True)]
 # if not contains string
@@ -316,6 +322,8 @@ df.update(slide_info)
 c = pd.merge(df_left,df_right,on=key)
 # concat two dataframe
 c = pd.concat([df1,df2],axis=0,join='outer',sort=False)
+# join two dataframe
+df_ab = df_a.join(df_b, lsuffix='_A', rsuffix='_B')
 
 # transfer dataframe to dict
 grps = df['group'].unique().tolist()
@@ -432,6 +440,34 @@ Ctrl+Shift+-
 shift M
 # inline images
 %matplotlib inline
+
+# 
+0+0: reset kernel
+
+# get help of modulur
+# Shift+Tab
+
+?function-name: shows the definition and docstring for that function
+??function-name
+doc(function-name)
+
+%timeif
+
+%debut
+
+img_path = Path('')
+path.ls()
+
+#make dir in current working_folder
+path = Path('new/folder_1')
+folder = 'black'
+dest = path/folder
+dest.mkdir(parents=True,exist_ok=True)
+
+
+# hide warning
+import warnings
+warnings.filterwarnings('ignore')
 #================================================== 
 from tqdm import tqdm
 #================================================== 
@@ -473,9 +509,19 @@ os.listdir(my_png)
 #alternative
 file_list = glob.glob(my_png+"_10x_performance.txt")
 
+#
+myPath = Path('F:\mydrive\as\fjk.jpg')
+myPath.ls()
+myPath.parent.stem ->as
+myPath_sub1 = myPath/'sub1'
+
 # =======================================================
 # List comprehension
 # =======================================================
+# find duplicated elements in a list
+l = [1,1,2,2,3,3,4,5]
+set([x for x in l if l.count(x)>1])
+
 #list only files
 file_lsit = [f for f in os.listdir(folder) if os.path.isfile(os.path.join(folder,f))]
 
@@ -619,6 +665,11 @@ FundName.__doc__
 import time
 #return information about a single run of the code in one cell
 %%time
+#-------------------------------
+# comment multiple lines
+Ctrl+/
+
+
 
 #uses the Python timeit module which runs a statement 100,000 time
 #(by default) and provides the man of the fastest three times.
@@ -785,9 +836,12 @@ sns.set_color_codes('muted')
 sns.set(style="darkgrid")
 
 sns.scatterplot(x="total_bill",y="tip",hue="size",style="smoke",data=df)
+
 #move legend outside
 plt.legend(title='mytitle',bbox_to_anchor=(1.05,1),loc=2)
 plt.legend(bbox_to_anchor=(1.05,1),loc=2,borderaxesspad=0.)
+
+plt.scatter(df_red['x'],df_red['y'],s=df_red['count'])
 
 # add margin to plot
 plt.margins(1)
@@ -1028,4 +1082,273 @@ img = matplotlib.image.imread('london.png')
 plt.imshow(img,extend=[-0.38,0.38,-0.38,0.38]) # resize
 plt.scatter(df['x'],df['y'],color='b')
 #===============================
+
+#===============================
+# fastai
+from fastai.vision import *
+#===============================
+path_img = Path(':\F:')
+learn.export(file='export_zc.pkl')
+learn = load_learner(path_img, file='export_zc.pkl')
+
+path_img = Path(':\F:')
+img_list = ImageList.from_folder(path_test)
+img_list.items # file name
+
+learn = load_learner(path_model, test=ImageList.from_folder(path_test))
+preds, y = learn.get_preds(ds_type=DatasetType.Test)
+
+
+fnames = get_image_files(path_img)
+
+img = open_image(path/'black'/'jio.jpg')
+
+#  Workflow
+#
+folder = 'black'
+dest = path/folder
+dest.mkdir(parents=True,exist_ok=True)
+
+classes = ['teddy','grizzly','black']
+#download images
+download_images(path/file, dest, max_pics = 200)
+download_images(path/file, dest, max_pics=20, max_workers=0)
+# verify images
+for c in classes:
+    verify_images(path/c, delete=True, max_workers=8)
+
+np.random.seed(42)
+data = ImageDataBunch.from_folder(path, train=".",  # training is the same folder
+        valid_pct = 0.2,                        # 20% validation set
+        ds_tfms=get_transforms(),
+        size=224,
+        num_workers=4).normalizie(imagenet_stats)
+'''
+data = ImageDataBunch.from_csv(path, folder='.', valid_pct=0.2, csv_labels='cleaned.csv',
+        ds_tfms=get_transforms(),size=224,num_workers=4).normalize(imagenet_stats)
+'''
+data.classes
+data.show_batch(row=3,figsize=(7,8))
+data.show_batch(2,figsize=(10,7), ds_type=DatasetType.Valid)
+data.classes, data.c, len(data.train_ds), len(data.valid_ds)
+#learn = create_cnn(data, models.resnet34, metrics=error_rate)   # create_cnn is deprecated
+learn = cnn_learner(data, models.resnet34, metrics=error_rate)   #get pre-trained resnet34
+learn = cnn_learner(data, models.resnet34, metrics=error_rate,pretrained=False) #get rid of pre-trained resnet34
+learn.fit_one_cycle(4)
+learn.save('stage-1')   # workflow 1
+#plot losses
+learn.recorder.plot_losses()
+# re-train start
+learn.unfreeze()
+learn.lr_find()                 # lr_find(learn)
+learn.recorder.plot()           #plor learning rate
+learn.recorder.plot_losses()    #plot training and validation loss
+learn.recorder.plot_lr()        #plot lr
+learn.fit_one_cycle(2,max_lr=slice(3e-5,3e-4))  # workflow 2
+learn.save('stage-2')
+
+interp = ClassificationInterpretation.from_learner(learn)
+interp.plot_confustion_matrix()
+
+# Clean up
+from fastai.widgets import *
+losses,idxs = interp.top_losses()
+top_loss_paths = data.valid_ds.x[idxs]  # x : image path and name , y: image class
+fd = FileDeleter(file_paths=top_lass_paths)
+
+top_loss_paths = data.train_ds.x[idxs]  # x : image path and name , y: image class
+
+# ipywidget 
+
+# production
+learn.export()
+learn = load_learner(path)
+img = open_image(path/'x.jpg')
+pred_class, pred_idx, outputs = learn.predict(img)
+pred_class
+
+# 
+classes = ['black','grizzly','teddy']
+data2 = ImageDataBunch.single_from_classes(path, classes, tfms=get_transforms(),size=224).normalize(imagenet_stat)
+
+# garbage collect
+gc.collect()
+
+# tips
+train_loss < valid_loss => increase learning rate or more epoch
+# too many epochs -> over fitting
+
+# ===========================================
+# create data bunch
+data = (ImageFileList.from_folder(path) #Where to find the data? -> in path and its subfolders
+        .label_from_folder()             #How to label? -> depending on the folder of the filenames
+        .split_by_folder()               #How to split in train/valid? -> use the folders
+        .add_test_folder()               #Optionally add a test set
+        .datasets()                      #How to convert to datasets?
+        .transform(tfms, size=224)       #Data augmentation? -> use tfms with a size of 224
+        .databunch(bs=8))                #Finally? -> use the defaults for conversion to ImageDataBunch
+        )
+data.train_ds[0]
+data.show_batch(row=3, figsize(5,5))
+
+# Regression model
+# TargetCell    
+data = (ImageList.from_folder(path_img) #Where to find the data? -> in path and its subfolders
+        .split_by_rand_pct(0.15)
+        .label_from_func(get_float_labels, label_cls=FloatList)
+        .transform(tfmss, size=[448,608])
+        .databunch(bs=bs)).normalize(imagenet_stats)
+# re-train
+learn = cnn_learner(data, models.resnet18, metrics=rmse)    # error metrics tell regression
+learn = cnn_learner(data, models.resnet18, metrics=rmse).load('stage_1')
+
+learn.show_results()
+
+
+# ===========================================
+def acc_02(inp,targ): return accuracy_thresh(inp,targ,thresh=0.2)
+acc_02 = partial(accuracy_thresh, thresh=0.2)    # call accuracy_thresh with argument thresh = 0.2
+
+learn.fit_one_cycle(5,slice(0.01))
+
+
+# ===========================================
+# split the data source to several data bunch
+np.random.seed(42)
+src = (ImageFileList.from_folder(path),
+        .label_from_csv('train_v2.csv',sep=' ', folder='train-jpg', suffix='.jpg')
+        .random_split_by_pct(0.2))
+
+size = src_size//2      # // : integer divide 
+# reduce size of data
+data = (src.dataset(),
+        .transform(tfms, size=128)      # image size [128x128]
+        .databunch(bs=bs).normalize(imagenet_stats)
+# train the learner
+learn.save('stage-1')
+# replace the learner data with new data bunch
+data = (src.dataset(),
+        .transform(tfms, size=256, tfm_y=True) # flip over y-axis, tfm_x=True
+        .databunch(bs=bs).normalize(imagenet_stats)
+learn.data = data       # replace the data in learner
+learn.freeze()          # only train the last few layers, keep the majority of info from previosu learner
+learn.lr_find()
+learn.recorder.plot()
+lr = lr/2
+learn.fit_one_cycle(5,slice(lr))        # train last few layers
+learn.git('stage-2')
+
+learn.unfreeze()        # unfreeze all
+learn.fit_one_cycle(5, slice(1e-5, lr/5))
+
+learn.freeze_to(-2)      # unfreeze last 2 layers
+learn.fit_one_cycle(1,slice(1e-3),moms=(0.8,0.7))   # moms : decrease momentum
+learn.save('second')
+learn.load('third')
+learn.freeze_to(-3)      # unfreeze last 2 layers
+learn.fit_one_cycle(1,slice(1e-3),moms=(0.8,0.7))
+
+# ===========================================
+data.c
+len(data.train_ds)
+len(data.valid_ds)
+#replace learn data
+learn.data = data
+learn.fit_one_cycle()
+
+#plot loss
+learn.recorder.plot_losses()
+
+
+# code snippet
+# ===========================================
+test = ImageList.from_folder(path/'test-jpg').add(ImageList.from_folder(path/'test-jpg-additional'))
+preds, _ = learn.get_preds(ds_type=DatasetType.Text)
+thresh = 0.2
+labelled_preds = [' '.join([learn.data.classes[i] for i,p in enumerate(pred) if p > thresh]) for pred in preds]
+fnames = [f.name[:-4] for f in learn.data.test_ds.items]
+df = pd.DataFrame({'image_name':fnames, 'tags':labelled_preds}, columns = ['image_name','tags'])
+df.to_css(path/'submission.csv',index=False)
+# ===========================================
+get_y_fn = lambda x: path_lbl/f'{x.stem}_P{x_suffix}'
+
+
+open_image(img)
+open_mask(img)
+# ===========================================
+free = gpu_mem_get_free_no_cache()
+if free > 8200: bs=8
+else:           bs=4
+print(f'using bs={bs}, have {free}MB of GPU RAM free')
+# ===========================================
+#segregation model
+learn = Learner.create_unet(data, models.resnet34,metrics=metrics)
+learn = Learner.create_unet(data, models.resnet34,metrics=metrics).to_fp16()    # 16bit precision?
+# ===========================================
+lr=3e-3         #rule of thumb
+
+# python
+size = src_size//2  # integre divide
+
+# ===========================================
+learn.show_results()
+
+# muliti-label classification accuracy 
+accuracy_thresh(inp, targ, thresh=0.2)
+
+# ===========================================
+# inspect images
+fnames = get_image_files(path_img)
+fnames[:1]
+img_f = fnames[0]
+img = open_image(imf_f)
+img.show(figsize=(5,5))
+
+
+# ===========================================
+learn.save('stage-1')
+learn.load('stage-1')
+learn.show_results()
+
+# ===========================================
+# define mean square error
+learn = create_cnn(data, models.resnet34)
+learn.loss_func = MSELossFlat() #mean square error
+
+# ===========================================
+data = (TextList.from_csv(path, 'texts.csv',cols='text')
+        .split_from_df(cols=2)
+        .label_from_df(cols=0)
+        .databunch())
+
+data_lm = (TextList.from_folder(path)
+           #Inputs: all the text files in path
+            .filter_by_folder(include=['train', 'test']) 
+           #We may have other temp folders that contain text files so we only keep what's in train and test
+            .random_split_by_pct(0.1)
+           #We randomly split and keep 10% (10,000 reviews) for validation
+            .label_for_lm()           
+           #We want to do a language model so we label accordingly
+            .databunch(bs=bs))
+data_lm.save('tmp_lm.pkl')
+# ===========================================
+# data bunch operation
+data.save()
+data.load()
+data.show_batch()
+
+data.train_ds[0][0]
+data.valid_da[][]
+
+# ===========================================
+df = pd.readcsv(path/'adult.csv')
+test = TabularList.from_df()
+cat_names = ['workclass','education','material_status']  #categorical
+cont_names = ['age','fnlwgt']   # continuous data
+pros = [FillMissing, Categorify, Normalize] #pre-processor to prepare data
+test = TabularList.from_df(df.iloc[800,1000].copy(),path=path,cat_names=cat_names, cont_names=cont_names)
+data = (TabularList.from_df(df, path=path, cat_names=cat_names,cont_names=cont_names,procs=procs)
+        .split_by_idx(list(range(800,1000)))
+        .add_test(test, label=0)
+        .databunch())
 
