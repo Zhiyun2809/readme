@@ -83,3 +83,10 @@ done
 
 #  list number of files
 ls |wc -l
+
+#  list all subfolders
+ls -l |grep '^d'
+ls -d */
+
+# -zip all subfolder into individual zip file
+for i in `ls -l |grep '^d'|awk '{print $9}'`; do zip -r $i.zip $i; done
