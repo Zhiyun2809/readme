@@ -211,7 +211,7 @@ $ git clone --mirror https://.. git .git
 $ git config --bool core.bare false
 $ git reset --hard
 
-# clone remote to local
+t cl# clone remote to local
 $ git clone -b new-branch-name origin/remove-branch-name
 # remove all log info, d
 $ rm -dfr .git
@@ -222,7 +222,7 @@ $ git commit -m "new project"
 
 
 # clone to other folder
-$ git clone zhiyun.chen@live.de:https://github.com/Zhiyun2809/mysite.git another-name
+$ git clone https://github.com/Zhiyun2809/mysite.git another-name
 # if above command not work, try below one
 $ git clone https://github.com/Zhiyun2809/mysite.git another-name
 # pull

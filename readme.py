@@ -128,9 +128,12 @@ df.rename(columns={"old_name":"new_name"},inplace=True)
 
 # rolling operation
 df['rolling_mean']=df['close'].rolling(window=3).mean()
+# get the max indx idxmax
+df.idxmax(axis=0)
 
 # handling redundacy
 df.drop_duplicates()
+df = df.loc[~df.index.duplicated(keep='first')]
 # fine top 3 words 
 all_chat_list=[]
 for i in range(len(df['Name'].drop_duplicates())):
@@ -247,16 +250,18 @@ sample_series_with_multiindex=pd.Series(list(range(100,105)),index=sample_multii
 
 import pandas as pd
 # dataframe from dictionary
-my_dict = {"tester": 1, "testers": 2}
+my_dict = {"tester": [1,2], "testers": [2,3]}
 # key as column
-df = pd.DataFrame(my_dict)
+df = pd.DataFrame.from_dict(my_dict)
 # key as index
-df = pd.DataFrame(my_dict,orient='index')
+df = pd.DataFrame.from_dict(my_dict,orient='index')
+df = pd.DataFrame.from_dict(my_dict,orient='index',columns=['a','b'])
 df.to_csv("path and name of your csv.csv")
 # set to data frame type to plot
 df = pd.read_csv('ABC.csv') #read cvs
 df2 = df.loc[0:12] #select rows
 # get rid of "Unnamed:0"
+# pd.to_csv(df,encoding='utf-8',index=True)
 df = pd.read_csv('file.txt',index_col=[0])
 # selective read
 df = pd.read_csv('file.csv').query('year==1986')
@@ -306,6 +311,8 @@ df['info'].fillna(df['add_info'],inplace=True)
 # find duplicated index
 duplicated_idx =  df[df.index.duplicated()].index
 df.drop(duplicated_idx, axis = 0, inplace=True)
+
+df = df.loc[~df.index.duplicated(keep='first')]
 # get unique label
 
 #construct empty dataframe
@@ -331,6 +338,8 @@ c = pd.merge(df_left,df_right,on=key)
 c = pd.concat([df1,df2],axis=0,join='outer',sort=False)
 # join two dataframe
 df_ab = df_a.join(df_b, lsuffix='_A', rsuffix='_B')
+df_ab = df_a.join(df_b, on='key', how='outer')
+df_ab = df_a.join(df_b, on='key', how='inner')
 
 # transfer dataframe to dict
 grps = df['group'].unique().tolist()
@@ -1209,6 +1218,12 @@ gc.collect()
 train_loss < valid_loss => increase learning rate or more epoch
 # too many epochs -> over fitting
 
+#split option
+https://docs.fast.ai/data_block.html
+split_by_rand_pct(valid_pct=0.1,seed=42)
+split_by_folder
+split_by_idx(valid_idx=range(800,1000))
+
 # ===========================================
 # create data bunch
 data = (ImageFileList.from_folder(path) #Where to find the data? -> in path and its subfolders
@@ -1293,7 +1308,8 @@ learn.recorder.plot_losses()
 # code snippet
 # ===========================================
 test = ImageList.from_folder(path/'test-jpg').add(ImageList.from_folder(path/'test-jpg-additional'))
-preds, _ = learn.get_preds(ds_type=DatasetType.Text)
+learn = load_learner(path_model, file=file_model, test=test_imglist)
+preds, _ = learn.get_preds(ds_type=DatasetType.Test)
 thresh = 0.2
 labelled_preds = [' '.join([learn.data.classes[i] for i,p in enumerate(pred) if p > thresh]) for pred in preds]
 fnames = [f.name[:-4] for f in learn.data.test_ds.items]
@@ -1411,3 +1427,16 @@ interp.plot_confusion_matrix()
 doc()
 ??FileDeleter
 ipywidget
+# Tabular_learner
+learn = tabular_learner(data, 
+                       layers=[300,100], #two cycles with 300 rows then 100 rows in the matrix 
+                       #emb_szs = xxx, #embedding defaults usd
+                       metrics=rmse, #metric of interest
+                       ps = [.1, .2], #sets the drop out between cycles
+                       emb_drop = .1  #embedding drop-out prior to training
+                       )
+#two cycles with 300 rows then 100 rows in the matrix
+
+
+# Normalize:
+# A normilization takes continuous variables and subtract their mean and divide by their standard deviation so they are zero-one variable
