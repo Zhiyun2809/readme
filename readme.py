@@ -164,6 +164,8 @@ title_names = (data1['Title'].value_counts()< stat_min)
 data1['Title'] = data1['Title'].apply(lambda x: 'Misc' if title_names.loc[x]==True else x)
 train['Has_Cabin'] = train['Cabin'].apply(lambda x: 0 if type(x)==float else 1)
 
+item0 = lambda o:o[0]
+
 df['Tax %'] = df['Income'].apply(lambda x: .15 if 10000<x<40000 else .2 if 40000<x<80000 else .25)
 df ['Taxes owed']= df['Income'] * df['Tax %']
 
@@ -249,6 +251,7 @@ sample_multiindex = pd.MultiIndex.from_tuples([('A',1),('A',2),('A',3),('B',1),(
 sample_series_with_multiindex=pd.Series(list(range(100,105)),index=sample_multiindex)
 
 import pandas as pd
+# dataframe from csv
 # dataframe from dictionary
 my_dict = {"tester": [1,2], "testers": [2,3]}
 # key as column
@@ -259,6 +262,10 @@ df = pd.DataFrame.from_dict(my_dict,orient='index',columns=['a','b'])
 df.to_csv("path and name of your csv.csv")
 # set to data frame type to plot
 df = pd.read_csv('ABC.csv') #read cvs
+# reset column name at read_csv
+df = pd.read_csv('ABC.csv',delimiter='\t',header=None,
+        names=['n1','n3',*[f'g{i}' for i in range(19)]]) 
+
 df2 = df.loc[0:12] #select rows
 # get rid of "Unnamed:0"
 # pd.to_csv(df,encoding='utf-8',index=True)
@@ -340,6 +347,8 @@ c = pd.concat([df1,df2],axis=0,join='outer',sort=False)
 df_ab = df_a.join(df_b, lsuffix='_A', rsuffix='_B')
 df_ab = df_a.join(df_b, on='key', how='outer')
 df_ab = df_a.join(df_b, on='key', how='inner')
+# merge part of df_b to df_a
+df_ab = df_a.merge(df_b['col1','col2'])
 
 # transfer dataframe to dict
 grps = df['group'].unique().tolist()
@@ -1399,6 +1408,44 @@ data = (TabularList.from_df(df, path=path, cat_names=cat_names,cont_names=cont_n
         .databunch())
 
 # ===========================================
+# Tabular_learner
+learn = tabular_learner(data, 
+                       layers=[300,100], #two cycles with 300 rows then 100 rows in the matrix 
+                       #emb_szs = xxx, #embedding defaults usd
+                       metrics=rmse, #metric of interest
+                       ps = [.1, .2], #sets the drop out between cycles
+                       emb_drop = .1  #embedding drop-out prior to training
+                       )
+#two cycles with 300 rows then 100 rows in the matrix
+# ===========================================
+dep_var = 'salary'
+cat_names = ['workclass', 'education', 'marital-status', 'occupation', 'relationship', 'race']
+cont_names = ['age', 'fnlwgt', 'education-num']
+procs = [FillMissing, Categorify, Normalize]
+
+test = TabularList.from_df(df.iloc[800:1000].copy(), path=path, cat_names=cat_names, cont_names=cont_names)
+
+data = (TabularList.from_df(df, path=path, cat_names=cat_names, cont_names=cont_names, procs=procs)
+                           .split_by_idx(list(range(800,1000)))
+                           .label_from_df(cols=dep_var)
+                           .add_test(test, label=0)
+                           .databunch())
+data.show_batch(rows=10)
+learn = tabular_learner(data, layers=[200,100], metrics=accuracy)
+learn.fit(1, 1e-2)
+# ===========================================
+# Collaborative filtering example
+# collab models use data in a DataFrame of user, items, and rating
+from fastai.collab import *
+from fastai.tabular import *
+user,item,title = 'userId','movieId','title'
+data = CollabDataBunch.from_df(ratings, seed=42)
+y_range = [0,5.5]
+learn = collab_learner(data, n_factors=50, y_range=y_range)
+learn.fit_one_cycle(3, 5e-3)
+data = CollabDataBunch.from_df(rating_movie, seed=42, valid_pct=0.1, item_name=title)
+learn = collab_learner(data, n_factors=40, y_range=y_range, wd=1e-1)
+# ===========================================
 # useful methods
 download_images(urls, dest, max_pics)
 verify_images(path, delete=True, max_workers=8)
@@ -1422,20 +1469,9 @@ learn.save('stage-2')
 interp = ClassificationInterpretation.from_learner(learn)
 interp.plot_confusion_matrix()
        
-
-
 doc()
 ??FileDeleter
 ipywidget
-# Tabular_learner
-learn = tabular_learner(data, 
-                       layers=[300,100], #two cycles with 300 rows then 100 rows in the matrix 
-                       #emb_szs = xxx, #embedding defaults usd
-                       metrics=rmse, #metric of interest
-                       ps = [.1, .2], #sets the drop out between cycles
-                       emb_drop = .1  #embedding drop-out prior to training
-                       )
-#two cycles with 300 rows then 100 rows in the matrix
 
 
 # Normalize:
