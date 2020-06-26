@@ -62,3 +62,15 @@ identify -verbose 12.jpg |grep -E "frame|^x|^y"
 
 # remove whitespace use tr
 tr -d '[:space:]'
+
+#look for files with extention in all subfolders
+ls -R |grep 'tif'
+
+# get count of files in subfolder
+ls |wc -l
+
+# list only directory
+for i in $(ls -d */); do echo $(i%%/);done
+
+# unzip file
+for i in `ls *.zip`; do unzip $i; done
