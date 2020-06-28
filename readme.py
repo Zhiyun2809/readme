@@ -1067,6 +1067,13 @@ fig,ax = plt.subplots()
 stripplot_kwargs = dict({'linewidth':0.6, 'size':6,'alpha': 0.7}, **kwargs)
 sns.stripplot(x='x',y='value',hue='label',data=df,fliersize=0,ax=ax,**kwargs)
 ax.legend_.remove()
+
+# multiple plots on same chart
+fig, ax = plt.subplots()
+ax.plot(df_real['pred'],label='predict',color='red')
+ax.plot(df_real['price'],label='real',color='darkgreen')
+ax.set_xticks(ax.get_xticks()[::5])
+
 # legend -> keep first 2 legend
 handles, labels = ax.get_legendhandles_labels()
 lgd = ax.legend(handles[0:2], labels[0:2],
@@ -1476,3 +1483,7 @@ ipywidget
 
 # Normalize:
 # A normilization takes continuous variables and subtract their mean and divide by their standard deviation so they are zero-one variable
+
+
+# feather
+# pip install feather-format
