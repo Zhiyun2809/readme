@@ -867,7 +867,7 @@ sns.set(style="darkgrid")
 
 sns.scatterplot(x="total_bill",y="tip",hue="size",style="smoke",data=df)
 
-sns.catplot(x='speed',y='tc',hue='sample',cat='type',data=df)
+sns.catplot(x='speed',y='tc',hue='sample',col='type',col_wrap=2,data=df)
 g.set_axis_labels("","Totla number of TargetCells")
 plt.subplots_adjust(top=0.8)
 g.fig.suptitle('Title')
@@ -1035,7 +1035,7 @@ st.set_x(0.45)
 axs[0].set_title('title1')
 axs[1].set_title('title1')
 
-#rotate xticks
+rotate xticks
 g = sns.boxplot(x='log',y='count',data=df)
 g.set_xticklabels(g.get_xticklabels(),rotation=90)
 
