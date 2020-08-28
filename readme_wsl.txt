@@ -46,7 +46,7 @@ find /folder -name "*.jpg" -type f -mtime +30 -exec rm -f {} \
 
 # move files by date
 for i in `ls -lrt |grep 'May 12'|awk '{print $9}'`; do cp $i /new_dest; done
-for i in `ls -lrt */* |grep 'May 12'|awk '{print $9}'`; do cp $i new_dest/; done
+for i in `ls -lrt */* |grep 'May 12'|awk '{print $9}'`; do cp -p $i new_dest/; done
 
 
 # list all files with only digits in name
@@ -74,3 +74,21 @@ for i in $(ls -d */); do echo $(i%%/);done
 
 # unzip file
 for i in `ls *.zip`; do unzip $i; done
+# zip file
+for i in `ls -d t_*`; do zip $i.zip $i; done
+
+# remove ' from file
+sed "s/'//" filename
+
+# iteratre of list
+for opt in string1 strnig2 string3
+do echo ${opt}.txt
+done
+
+#list all installed package on pc
+$dpkg --list
+* remove installed package
+$sudo apt-get remove package-name
+
+# vimtip add time in file
+:put=strftime('%c')

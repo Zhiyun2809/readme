@@ -133,7 +133,11 @@ df.idxmax(axis=0)
 
 # handling redundacy
 df.drop_duplicates()
-df = df.loc[~df.index.duplicated(keep='first')]
+
+# deprecated: df.loc[list-of-labels]
+df.reindex(list-of-labels)
+
+df.loc[df.index.intersection(labels)]
 # fine top 3 words 
 all_chat_list=[]
 for i in range(len(df['Name'].drop_duplicates())):
@@ -156,6 +160,8 @@ dataset['AgeBin'] =pd.cut(dataset['Age'].astype(int),5)
 
 # replace
 df['dose'].replace({1:'placebo',2:'low'}, inplace=True)
+
+string.replace(old,new,count)
 
 stat_min = 10
 title_names = (data1['Title'].value_counts()< stat_min)
@@ -232,8 +238,11 @@ df['slide'] = df['slide'].astype(int)
 
 # replace
 df = df.replace(np.nan, 'N/A', regex=True)
-# sample 
-df.sample(100,replace=True).describe()
+# choose random sample 
+df.sample(n=100).describe() -> not allow duplicated row
+df.sample(n=100,replace=True).describe() -> allow duplicated row
+df.sample(frac=0.4)
+df.sample(n=2,random_state=2)-> get the same row everytime
 # stack -> transfer multiindex dataframe to flat 
 
 # unstack -> transform a dataset with a pd.MultiIndex into a 2 dimensional array
@@ -289,6 +298,9 @@ ts = pd.Timestamp(dt.datetime.now())
 base = datetime.datetime.today()
 date_list = [base - datetime.timedelta(days=x) for x in range(0, numdays)]
 
+# conditionally multiply column
+df.loc[df['vol']=='0.5uL',['rbc','wbc','plt']] *=2.0
+
 # list operation: remove 
 unwanted = [2, 3, 4]
 item_list = [e for e in item_list if e not in unwanted] 
@@ -337,8 +349,11 @@ slide_list = df['slide'].tolist()
 
 #get row with index
 df.log[idx]
-#update colume with new values
+#update colume with new values (no duplicated index)
 df.update(slide_info)
+# 
+df['sample']=df['sample'].map(dict)
+
 # merge two dataframe
 c = pd.merge(df_left,df_right,on=key)
 # concat two dataframe
@@ -561,6 +576,8 @@ common = [i for i in x if i in y]
 my_list.pop()
 # remove the first element in the list
 my_list.popleft()
+# remove element from list
+list.remove(element)
 
 #
 # list comprehension
@@ -572,6 +589,7 @@ a = []
 if not a:
     print(f'empty')
 
+
 #===============================
 # convert list to dictionary keys
 list_samples
@@ -582,6 +600,9 @@ zipObj= zip(list_samples,list_donors)
 dict_sample = dict(zipObj)
 df['donor']=df['sample'].map(dict_sample)
 
+# create list of nan
+nan_list = [np.nan for i in range(9)]
+
 #list
 a = []
 a.append(b)
@@ -590,7 +611,9 @@ sorted(a,reverse=True)
 #map list using dictionary
 l_map = list(map(my_dict.get,low_mag))
 
-
+# combine two lists to one
+newlist = list1 + list2
+nwelist = [*list1, *list2]
 
 
 #================================
@@ -598,6 +621,8 @@ l_map = list(map(my_dict.get,low_mag))
 #================================
 colormap = sns.diverging_palette(220,10,as_cmap=True)
 colormap=plt.cm.RdBu 
+
+
 
 # save figure to pdf
 %pylab inline
@@ -616,14 +641,29 @@ plt.savefig('fivure.png',bbox_inches="tight")
 if not show:
     plt.close()
 
+
 # x label overlap
 fig, axs = plt.subplots(figsize=(6,4))
 axs.hist(x)
 axs.set_xticks(axs.get_xticks()[::2])
 plt.show()
 
+# scientific label format
+axs.ticklabel_format(axis='x',style='sci',scilimits=(0,2))
+
+# horizontal line
+plt.axhline(y=1,color='gray',linestyle='--')
+ax.axhline(y=1,color='red',linestyle='-')
+
+#plot settings
+# square plot
+ax.axis('equal')
+ax.get_legend().set_visible(False)
+
+
 # 
 plt.rcParams.update({'figure.figsize':(8,6),'figure.dpi':120})
+plt.figure(figsize=(4,4))
 
 # pillow image compression
 from PIL import Image
@@ -671,6 +711,16 @@ print('{:5d}'.format(1))-> 00001
 print('stat=%.3f, p=%.3f'%(stat,p))
 
 print('Hello, %s' %str)
+
+#===============================
+# pandas multiindex
+# resulting a multi-index dataframe
+dst = df[['log','sample','rbc']].groupby(['log','sample'],as_index=False).agg(['mean','std'])
+dst.columns
+# get one column
+dst['rbc','mean']
+# add new column
+dst[('rbc','cv')]=dst['rbc','std']/dst['rbc','mean']*100
 
 
 #===============================
@@ -860,6 +910,7 @@ F,p = stats.f_oneway(d_data['ctrl'],d_data['trt1'],d_data['trt2'])
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+# 'paper','talk','notebook'
 sns.set_context('paper')
 sns.set_color_codes('pastel')
 sns.set_color_codes('muted')
@@ -872,12 +923,36 @@ g.set_axis_labels("","Totla number of TargetCells")
 plt.subplots_adjust(top=0.8)
 g.fig.suptitle('Title')
 
+sns.catplot(x='class',hue='who',col='survived',data=titanic,kind='count',height=4,aspect=.7)
+
 sns.set_context('paper',fontsize=1.2)
+
+# lmplot
+# use 'hue' argument to provide a factor variable
+sns.lmplot(x='x',y='y',data=df,fit_reg=False,hue='species',legend=False,palette)='Set2')
+
+# histogram
+from scipy.stats import norm
+sns.distplot(df['x'],fit=norm, kde=False,vertical=True)
+
+# joint histogram
+g = sns.jointplot(x='x',y='tip',data=df)
+g.fig.suptitle('title')
+g.fig.tight_layout()
+g.fig.subplots_adjust(top=0.95)
+
+g = sns.jointplot(x='x',y='y',data=df,kind='kde',space=0,color='g')
+g=(sns.jointplot(x='hct',y='wbc',data=df,color='g').plot_joint(sns.kdeplot, zorder=0,n_levels=20))
+
+# kde plot
+sns.kdeplot(x,y,cmap=cmap,cut=5,shade=shade)
+sns.kdeplot(x,y,cmap=cmap,cut=5,shade=shade,ax=ax)
         
 
 #move legend outside
 plt.legend(title='mytitle',bbox_to_anchor=(1.05,1),loc=2)
 plt.legend(bbox_to_anchor=(1.05,1),loc=2,borderaxesspad=0.)
+plt.legend(bbox_to_anchor=(1.05,1),ncol=1,loc=2,borderaxesspad=0.)
 
 plt.scatter(df_red['x'],df_red['y'],s=df_red['count'])
 
@@ -1012,6 +1087,8 @@ ax2.set_title('title 2')
 
 # hide legend
 axs.get_legend().set_visible(False)
+# remove legend
+axs.legend_.remove()
 
 # equal
 axs[i,j].settitle('title',fontsize=10)
@@ -1035,18 +1112,24 @@ st.set_x(0.45)
 axs[0].set_title('title1')
 axs[1].set_title('title1')
 
-rotate xticks
+# rotate xticks
 g = sns.boxplot(x='log',y='count',data=df)
 g.set_xticklabels(g.get_xticklabels(),rotation=90)
 
-#matplotlit
+ax.set_xticklabels(ax.get_xticklabels(),rotation=90)
+
+# matplotlit
 plt.xticks(rotation=90)
 plt.xticks(df.index[::10],rotation=90)
+
+# invert plot axis
+ax.invert_xaxis()
+ax.invert_yaxis()
 
 #================================================== 
 #assign same color palette to different plot
 sns.set_style('white',font_scale=1.2)
-pal = sns.color_pallette('Paired')
+pal = sns.color_palette('Paired')
 
 sns.boxplot(x='site',y='value',hue='label',data=df,
         palette=pal,fliersize=0)
@@ -1061,6 +1144,16 @@ pal = {'healthy':'green','disease':'blue'}
 dark_brown = '#B25116'
 dark_pink = '#FB84D1'
 pal = {'healthy': dark_brown,'disease': dark_pink}
+
+# flat axes in subplot
+f, axs = plt.subplots(3,3,figsize=(9,9),sharex=True,sharey=True)
+for ax in axs.flat:
+    sns.scatterplot(x,y,ax=ax,data=df)
+
+# use log scale
+splot = sns.scatterplot(x='x',y='y',data=df)
+splot.set(xscale='log')
+splot.set(yscale='log')
 
 # pass setting using dict
 fig,ax = plt.subplots()
@@ -1110,6 +1203,8 @@ plt.axis(xmin=0,xmax=3)
 df['income'].plot(kind='hist',histtype='step',bins=20,density=True)
 levels=[0.25,0,1,2,3]
 plt.xticks(np.logs10(levels),levels) #(location,label)
+
+
 
 
 #===============================
