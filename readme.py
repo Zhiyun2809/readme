@@ -30,6 +30,12 @@ RMSE = sqrt(mean_squared_error(y_true=y_test, y_pred=y_prediction)
 #===============================
 #Pandas dataframe
 #===============================
+# expand mxinum range of rows to view
+pd.set_option('display.max_rows',3000)
+pd.set_option('display.max_columns',3000)
+pd.set_option('display.width',3000)
+
+#===============================
 # displace numerical feature
 pd.describe()
 pd.describe().transpose()
@@ -60,6 +66,9 @@ train_df['smoker'].value_counts()
 train_df['smoker'].value_counts(normalize=True)
 
 df1.groupby(['district','year']).count()['count']
+#===============================
+import calendar
+df['month'] = df['month'].apply(lambda x: calendar.monthabbr[x])
 
 #===============================
 # cleanup rare title names
@@ -215,6 +224,13 @@ df.sort_values(by=['Age'],ascending=False,inplace=True)
 # set value
 for index, row in data2.iterrows():
     data1.set_value(index,'radom',1)
+
+# use pd.values
+df = pd.DataFrame({col1: [2,3],col2:[3,4]})
+dict_df = {}
+for key, item in df.values:
+    dict_df[key] = item
+
 
 # dropna
 df.dropna(axis=1)  # drop all columns with NaN
@@ -944,6 +960,8 @@ sns.set_color_codes('pastel')
 sns.set_color_codes('muted')
 sns.set(style="darkgrid")
 
+sns.set(style='whitegrid', color_codes=True, font_scale=1.7)§
+
 sns.scatterplot(x="total_bill",y="tip",hue="size",style="smoke",data=df)
 
 sns.catplot(x='speed',y='tc',hue='sample',col='type',col_wrap=2,data=df)
@@ -1638,3 +1656,19 @@ ipywidget
 
 # feather
 # pip install feather-format
+
+
+#================================================== 
+from wordcloud import WordCloud
+def grey_color_func(word, font_size, position, orientation, random_state=None, **kwargs):
+    return "hsl(0, 0%%, %d%%)" % random.randint(60,100)
+d = {}
+for keyword, volume in df.values:
+    d[keyword] = volume
+wc= WordCloud(width=800,height=400)
+plt.figure(figsize=(20,10))
+wc.generate_from_frequencies(frequencies=d)
+plt.imshow(wc.recolor(color_func=grey_color_func, random_state=3),interpolation='bilinear')
+plt.axis('off')
+plt.show
+wc.to_file('myfile.jpg')

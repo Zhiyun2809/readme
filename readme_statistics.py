@@ -83,6 +83,7 @@ aov_table
 
 # ====================================================
 # Two way ANOVA 
+# construct a combination of components
 # ====================================================
 # 
 rp.summary_cont(df.groupby(['Fert','Water']))['Yield']
@@ -92,12 +93,14 @@ print(f"Overall model F({model.df_model: .0f},{model.df_resid: .0f}) = {model.fv
 model.summary()
 # create anova table (typ 2 sum of squares)
 res= sm.stats.anova_lm(model,typ=2)
+print(res)
 
 # 
 model2 = ols('Yield ~C(Fert)+C(Water)',df).fit()
 model2.summary()
 #get anova table
 res2 = sm.stats.anova_lm(model2, typ= 2)
+print(res2)
 # post-hoc testing
 mc = statsmodels.stats.multicomp.MultiComparison(df['Yield'],df['Fert'])
 mc_results = mc.tukeyhsd()
@@ -105,6 +108,13 @@ print(mc_results)
 mc = statsmodels.stats.multicomp.MultiComparison(df['Yield'],df['Water'])
 mc_results = mc.tukeyhsd()
 print(mc_results)
+
+# 
+formula = 'volume ~ C(keywork) + C(engine) + C(month) + C(keyword):C(engine) 
+        + C(engine):C(month)'
+lm = ols(formula, df).fit()
+table = sm.stas.anova_lm(lm,typ=2)
+print(table)
 
 # ====================================================
 # multi
@@ -114,6 +124,13 @@ from statsmodels.stats.multicomp import (pairwise_tukeyhsd,MultiComparison)
 MultiComp = MultiComparison(df['result'],df['log'])
 # show all pair-wise comparisons
 print(MultiComp.tukeyhsd().summary())
+
+from statismodels.stats.multicomp import pairwise_tukeyhsd
+m_comp = pairwise_tukeyhsd(endog=df['volume'],groups=df['keyword'], alpha=0.05)
+print(m_comp)
+tukey_data = pd.DataFrame(data=m_comp._results_table.data[1:],columns=m_comp._results_table.data[0])
+group1_comp = tukey_data[tukey_data['reject']==True].groupby('group1')
+
 # ====================================================
 # Holm-Bonferroni Method
 comp = MultiComp.allpairtest(stats.ttest_rel,method='Holm')
