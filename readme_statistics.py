@@ -118,3 +118,22 @@ print(MultiComp.tukeyhsd().summary())
 # Holm-Bonferroni Method
 comp = MultiComp.allpairtest(stats.ttest_rel,method='Holm')
 print(comp[0])
+
+# ====================================================
+# QQ-plot
+import numpy as np
+import statsmodels.api as sm
+a = np.random.normal(5,5,250)
+sm.qqplot(a)
+plt.show()
+
+import scipy
+import matplotlib.pyplot as plt
+scipy.stts.probplot(a,dist='norm',plt=plt)
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+import seaborn_qqplot as sqp
+iris = sns.load_dataset('iris')
+sqp.qqplot(iris,x='sepal_length',y='petal_length',height=4,aspec=1.5)
+

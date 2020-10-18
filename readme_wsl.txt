@@ -92,3 +92,11 @@ $sudo apt-get remove package-name
 
 # vimtip add time in file
 :put=strftime('%c')
+
+
+#SSH
+# add known host to
+$ ./ssh/config 
+$ chmod 0700 .ssh/
+$ chmod 0600 .ssh/*
+

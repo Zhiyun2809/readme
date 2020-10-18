@@ -3,6 +3,15 @@
 from google.colab import drive
 drive.mount('/content/dirve')
 #===============================
+# get object info
+for attr in dir(workObj):
+    print(attr +'()') if callable(getattr(wo1,attr)) else print(attr)
+
+#===============================
+# check if string contains substring
+if 'test' in stra:
+    print(stra)
+#===============================
 #method for scaling
 from sklearn import preprocessing
 X = np.array(df)
@@ -30,6 +39,9 @@ train_df.columns
 train_df.index
 train_df.columns.values
 
+# convert column to digits
+df['m_hct']=df['m_hct'].rount(1) -> convert to 1 decimal place
+
 # displace categorical feature (no numerical values)
 pd.describe(include=['O'])
 pd.describe(include='all')
@@ -39,7 +51,7 @@ df.sample(10)
 df.sample(100,replace=True) #allow duplication
 
 # get index of mininum column value
-df['printtime'].idxmin(axis=1)
+df['printtime'].idxmin(axis=)
 
 train_df[['Pclass','Survived']].groupby(['Pclass'],as_index=False).mean().sort_values(by='Survived',ascending=False)
 train_df[['log','red_move']].groupby(['log'],as_index=False).agg(['mean','count']).sort_values(by=('red_move','mean'),ascending=False)
@@ -87,6 +99,8 @@ df.isnull().any().any() -> return False or True
 # alternative
 df.isnull().sum()
 df.isnull().sum().sum()
+# list nan
+df.loc[pd.isna(df['date']),:]
 #  shift col
 df[ticker].shift(-i)
 # find common index
@@ -160,6 +174,8 @@ dataset['AgeBin'] =pd.cut(dataset['Age'].astype(int),5)
 
 # replace
 df['dose'].replace({1:'placebo',2:'low'}, inplace=True)
+
+df['pos']=df['settings'].str.replace(r'_10x_settings.txt','')
 
 string.replace(old,new,count)
 
@@ -600,6 +616,13 @@ zipObj= zip(list_samples,list_donors)
 dict_sample = dict(zipObj)
 df['donor']=df['sample'].map(dict_sample)
 
+#concat two dictionary
+d1.update(d2)
+#or
+dboth={}
+dboth.update(d1)
+dboth.update(d2)
+
 # create list of nan
 nan_list = [np.nan for i in range(9)]
 
@@ -621,6 +644,9 @@ nwelist = [*list1, *list2]
 #================================
 colormap = sns.diverging_palette(220,10,as_cmap=True)
 colormap=plt.cm.RdBu 
+
+current_palette = sns.color_palette()
+sns.scatterplot(x='x',y='y',data=df,color=current_palette[0])
 
 
 
@@ -826,6 +852,8 @@ except Exception as e:
 
 
 #===============================
+
+#===============================
 # print dict
 data={'city':1,'region':12,'country':23}
 print("{city}, {region},{country}".format(**data))
@@ -923,13 +951,19 @@ g.set_axis_labels("","Totla number of TargetCells")
 plt.subplots_adjust(top=0.8)
 g.fig.suptitle('Title')
 
-sns.catplot(x='class',hue='who',col='survived',data=titanic,kind='count',height=4,aspect=.7)
+g = sns.catplot(x='class',hue='who',col='survived',data=titanic,kind='count',height=4,aspect=.7)
+(g.set_axis_labels('xlabel','ylabel')
+        .set_xticklabels(['','',''])
+        .set_title('{col_name}{col_var}')
+        .set(ylim=(0,1))
+        .despine(left=True))
+
 
 sns.set_context('paper',fontsize=1.2)
 
 # lmplot
 # use 'hue' argument to provide a factor variable
-sns.lmplot(x='x',y='y',data=df,fit_reg=False,hue='species',legend=False,palette)='Set2')
+sns.lmplot(x='x',y='y',data=df,fit_reg=False,hue='species',legend=False,palette='Set2')
 
 # histogram
 from scipy.stats import norm
@@ -947,6 +981,10 @@ g=(sns.jointplot(x='hct',y='wbc',data=df,color='g').plot_joint(sns.kdeplot, zord
 # kde plot
 sns.kdeplot(x,y,cmap=cmap,cut=5,shade=shade)
 sns.kdeplot(x,y,cmap=cmap,cut=5,shade=shade,ax=ax)
+
+# regression plot
+# ci: 68% confidence interval
+sns.regplot(x='x',y='y',data=df,color='g',marker='+',ci=68,order=2)
         
 
 #move legend outside
@@ -972,6 +1010,18 @@ import seaborn as sns
 import seaborn_qqplot as sqp
 iris = sns.load_dataset('iris')
 sqp.qqplot(iris,x="sepal_length",y="petal_length",height=4,aspec=1.5,)
+
+## Pairplot
+iris = sns.load_dataset('iris')
+g = sns.pairplot(iris,hue='species',palette='husl',markers='d',size=2.5,
+        plot_kws={'s':40,'alpha':1.0,'lw':0.5,'edgecolor':'k'})
+handles = g._legend_data.value()
+labels = g._legend_data.keys()
+g.fig.legend(handles=handles,labels=labels,loc='upper center', ncol=1)
+g.fig.legend(handles=handles,labels=labels,loc='lower center', ncol=3)
+g.fig.legend(handles=handles,labels=labels,loc='upper left', ncol=3)
+g.fig.subplots_adjust(top=0.92,bottom=0.08)
+
 
 #
 matplotlib.rc('xtick',labelsize=14)
@@ -1075,13 +1125,13 @@ sns.barplot(x='Pclass',y='Survived',data=data1, ax=saxis[1,1])
 # option 4
 fig, (ax1,ax2) = plt.subplots(2,1,figsize=(14,10))
 sns.boxplot(x='Pclass',y='Fare', hue='Survived',data=data1, ax=ax1)
-axis1.set_title('title 1')
+ax1.set_title('title 1')
 sns.violinplot(x='Pclass',y='Age',hue='Survived',data=data1, ax=ax2)
 ax2.set_title('title 2')
 # option 5
 fig, ax = plt.subplots(2,1,figsize=(14,10))
 sns.boxplot(x='Pclass',y='Fare', hue='Survived',data=data1, ax=ax[0])
-axis1.set_title('title 1')
+ax1.set_title('title 1')
 sns.violinplot(x='Pclass',y='Age',hue='Survived',data=data1, ax=ax[1])
 ax2.set_title('title 2')
 
@@ -1111,6 +1161,8 @@ st.set_y(0.9)
 st.set_x(0.45)
 axs[0].set_title('title1')
 axs[1].set_title('title1')
+
+fig,axs = plt.subplots(2,1,sharex='col',sharey='row')
 
 # rotate xticks
 g = sns.boxplot(x='log',y='count',data=df)
@@ -1221,6 +1273,9 @@ plt.legend();
 img = matplotlib.image.imread('london.png')
 plt.imshow(img,extend=[-0.38,0.38,-0.38,0.38]) # resize
 plt.scatter(df['x'],df['y'],color='b')
+plt.imshow(img,origin='upper',interpolation='none',
+        cmap=plt.get_cmap('gray'),
+        extend=[135.3,34.2,344,33])
 #===============================
 
 #===============================
@@ -1496,7 +1551,8 @@ data.show_batch()
 
 data.train_ds[0][0]
 data.valid_da[][]
-
+# ===========================================
+open('file.txt','r').readlines()[:10]
 # ===========================================
 df = pd.readcsv(path/'adult.csv')
 test = TabularList.from_df()
