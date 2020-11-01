@@ -22,6 +22,9 @@ X = StandardScaler().fit_transform(select_df)
 
 score= accuracy_score(data_true = data_test, data_pred=predictions)
 
+# generate linear space depends on dataframe
+x = pd.DataFrame('lstat':np.linspace(df['lstat'].min(),df['lstat'].max(),100))
+
 # 
 from sklearn.metrics import mean_squared_error
 from math import sqrt
@@ -39,6 +42,10 @@ pd.set_option('display.width',3000)
 # displace numerical feature
 pd.describe()
 pd.describe().transpose()
+
+#  get numerical colums
+newdf = df.select_dtypes(include=numeric)
+df.select_dtypes('number').columns
 
 # get columns or row index
 train_df.columns
@@ -66,6 +73,9 @@ train_df['smoker'].value_counts()
 train_df['smoker'].value_counts(normalize=True)
 
 df1.groupby(['district','year']).count()['count']
+
+# cal frequency count
+df['country'].value_counts()
 #===============================
 import calendar
 df['month'] = df['month'].apply(lambda x: calendar.monthabbr[x])
@@ -79,6 +89,10 @@ combine = [train_df, test_df]
 for dataset in combine:
     dataset['Title'] = dataset.Name.str.extract(' ([A-Za-z]+)\.', expand=False)
     ps.crosstab(train_df['Title'], train_df['Sex'])
+
+# combine 2 columns
+df['join'] = df['a']+df['b']
+df['join'] = df[['a','b']].agg('_'.join, axis=1)
 # apply
 import re
 def get_title(name):
@@ -93,6 +107,8 @@ title_mapping = {'Mr':1, 'Miss':2, 'Mrs':3, 'Master':4, 'Rare':5}
 for dataset in combine:
     dataset['Title'] = dataset['Title'].map(title_mapping)
     dataset['Title'] = dataset['Title'].fillna(0)
+# replace
+recipes = recipes.replace(to_replace='Yes',value=1)
 #mapping
 for dataset in combine:
     dataset['Sex'] = dataset['Sex'].map({'female':1, 'male':0}).astype(int)
@@ -105,6 +121,8 @@ df = df.ffill(axis=0)
 # check is any nan in the dataframe
 df.isnull().any() -> return list of False or True 
 df.isnull().any().any() -> return False or True
+
+df[df['A'].isnulll()].index
 # alternative
 df.isnull().sum()
 df.isnull().sum().sum()
@@ -153,6 +171,7 @@ df.rename(columns={"old_name":"new_name"},inplace=True)
 df['rolling_mean']=df['close'].rolling(window=3).mean()
 # get the max indx idxmax
 df.idxmax(axis=0)
+df['sodium'].idxmax()
 
 # handling redundacy
 df.drop_duplicates()
@@ -190,6 +209,8 @@ string.replace(old,new,count)
 
 stat_min = 10
 title_names = (data1['Title'].value_counts()< stat_min)
+
+
 
 # lambda x:
 data1['Title'] = data1['Title'].apply(lambda x: 'Misc' if title_names.loc[x]==True else x)
@@ -383,6 +404,7 @@ slide_list = df['slide'].tolist()
 df.log[idx]
 #update colume with new values (no duplicated index)
 df.update(slide_info)
+df['sample'].update(slide_info['sample'])
 # 
 df['sample']=df['sample'].map(dict)
 
@@ -476,6 +498,14 @@ plt.plot(x_new, y_new, 'r--')
 #================================================== 
 # jupyter
 #================================================== 
+# Markdown secetion
+Double-click **here** for the solution.
+
+<!-- The correct answer is:
+It helps clarify the goal of the entity asking the question.
+-->
+# collapsible headings
+$pip install jupyter_contrib_nbextensions
 # write cell content to file
 %%writefile ../lib/myfuncs.py
 # load file to cell
@@ -639,6 +669,10 @@ dboth={}
 dboth.update(d1)
 dboth.update(d2)
 
+# print dictionary
+for key,item in res_dict.items():
+    print(key,item)
+
 # create list of nan
 nan_list = [np.nan for i in range(9)]
 
@@ -746,6 +780,10 @@ splot.annotate(format(p.get_height(),form))
 print('{:20s}'.format('Align Left'))
 print('{:>20s}'.format('Align Right'))
 print('{:^20s}'.format('Align center'))
+
+# print list with format
+grp_format = " ".join(["{:>10s}".format(x) for x in x_list])
+print('{}'.format(grp_format))
 
 # string format
 print('{:5d}'.format(1))-> 00001
@@ -960,7 +998,7 @@ sns.set_color_codes('pastel')
 sns.set_color_codes('muted')
 sns.set(style="darkgrid")
 
-sns.set(style='whitegrid', color_codes=True, font_scale=1.7)§
+sns.set(style='whitegrid', color_codes=True, font_scale=1.7)
 
 sns.scatterplot(x="total_bill",y="tip",hue="size",style="smoke",data=df)
 
@@ -975,14 +1013,22 @@ g = sns.catplot(x='class',hue='who',col='survived',data=titanic,kind='count',hei
         .set_title('{col_name}{col_var}')
         .set(ylim=(0,1))
         .despine(left=True))
-
-
 sns.set_context('paper',fontsize=1.2)
 
 # lmplot
 # use 'hue' argument to provide a factor variable
 sns.lmplot(x='x',y='y',data=df,fit_reg=False,hue='species',legend=False,palette='Set2')
 
+g = sns.lmplot(x='total_bill',y='tip',row='sex',col='time',
+        data=tip, height=3)
+g = (g.set_axis_labels('Total bill','Tip')
+        .set(xlim=(0,60),ylim=(0,12),
+            xticks=[10,30,50],yticks=[2,6,10])
+        .fig.subplots_adjust(wspace=.02)
+        )
+
+# swarmplot
+g = sns.swarmplot(x='category',y='sodium',data=df)
 # histogram
 from scipy.stats import norm
 sns.distplot(df['x'],fit=norm, kde=False,vertical=True)
@@ -1009,6 +1055,11 @@ sns.regplot(x='x',y='y',data=df,color='g',marker='+',ci=68,order=2)
 plt.legend(title='mytitle',bbox_to_anchor=(1.05,1),loc=2)
 plt.legend(bbox_to_anchor=(1.05,1),loc=2,borderaxesspad=0.)
 plt.legend(bbox_to_anchor=(1.05,1),ncol=1,loc=2,borderaxesspad=0.)
+
+# use unique legend
+handles, labels = plt.gca().get_legend_handles_labels()
+by_label = dict(zip(labels,handles))
+plt.legend(by_label.values(),by_label.keys(),bbox_to_anchor=(1.05,2),loc=2)
 
 plt.scatter(df_red['x'],df_red['y'],s=df_red['count'])
 
@@ -1040,6 +1091,8 @@ g.fig.legend(handles=handles,labels=labels,loc='lower center', ncol=3)
 g.fig.legend(handles=handles,labels=labels,loc='upper left', ncol=3)
 g.fig.subplots_adjust(top=0.92,bottom=0.08)
 
+## Joinplot -> shows coorelation with p-value
+g = sns.joinplot(x='Protein',y='Total Fat',data=df)
 
 #
 matplotlib.rc('xtick',labelsize=14)
@@ -1052,6 +1105,10 @@ grid.map(plt.hist,'Age',bins=20, density=1, alpha=0.5)
 # col and row
 grid = sns.FacetGrid(train_df, col='Survived', row='Pclass', size=2.2, aspect=1.6)
 grid.map(plt.hist, 'Age', alpha=0.5, bins=10)
+#
+d = {'color':['red','blue'],'ls':['--','-'],'marker':['v','^']}
+g = sns.FacetGrid(df,col='sample',hue='sample',hue_kws=d,col_wrap=2)
+g.map(sns.scatterplot,'under_stain','over_stain')
 #
 # using pointplot
 # palette = 'deep','muted','pastel','bright','dark'
@@ -1090,6 +1147,13 @@ for p iin splot.patches:
 
 #================================================== 
 # matplotlib
+
+# subplots annotate
+labels = df['label']
+fig,ax = plt.subplots()
+for i in label in enumerate(labels):
+    ax.annotate(label, (X.iloc[i],y.iloc[i]))
+
 
 # flexible use of subplot
 # option 1
@@ -1172,6 +1236,9 @@ Z = dbt.predict(np.c_[xx.ravel(),yy.ravel()])
 Z = Z.reshape(xx.shape)
 cs = plt.contourf(xx,yy,z,cmap=plt.cm.Paired)
 
+# plot diagonal line
+ax.plot(ax.get_xlim(),ax.get_ylim(),ls='--',c='red')
+
 # subplot title
 fig,axs = plt.subplots(2,1,sharex=True)
 st=fig.suptitle('title',fontsize='x-large')
@@ -1185,7 +1252,6 @@ fig,axs = plt.subplots(2,1,sharex='col',sharey='row')
 # rotate xticks
 g = sns.boxplot(x='log',y='count',data=df)
 g.set_xticklabels(g.get_xticklabels(),rotation=90)
-
 ax.set_xticklabels(ax.get_xticklabels(),rotation=90)
 
 # matplotlit
@@ -1195,6 +1261,11 @@ plt.xticks(df.index[::10],rotation=90)
 # invert plot axis
 ax.invert_xaxis()
 ax.invert_yaxis()
+
+#  adjust ticks xtick, ytick
+from matplotlib import ticker
+tick_locator = ticker.MaxNLocator(10)
+ax.xaxis.set_major_locator(tick_locator)
 
 #================================================== 
 #assign same color palette to different plot
@@ -1500,6 +1571,9 @@ fnames = [f.name[:-4] for f in learn.data.test_ds.items]
 df = pd.DataFrame({'image_name':fnames, 'tags':labelled_preds}, columns = ['image_name','tags'])
 df.to_css(path/'submission.csv',index=False)
 # ===========================================
+# dummy transfer boolean to number
+df2= pd.get_dummies(df,columns=['MBA'], drop_first=True)
+# ===========================================
 get_y_fn = lambda x: path_lbl/f'{x.stem}_P{x_suffix}'
 
 
@@ -1672,3 +1746,6 @@ plt.imshow(wc.recolor(color_func=grey_color_func, random_state=3),interpolation=
 plt.axis('off')
 plt.show
 wc.to_file('myfile.jpg')
+
+
+plt.plot(x.lstat,x.ldf,'b-',label='posl %.2f'%c)

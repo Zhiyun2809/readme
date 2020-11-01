@@ -48,6 +48,12 @@ find /folder -name "*.jpg" -type f -mtime +30 -exec rm -f {} \
 for i in `ls -lrt |grep 'May 12'|awk '{print $9}'`; do cp $i /new_dest; done
 for i in `ls -lrt */* |grep 'May 12'|awk '{print $9}'`; do cp -p $i new_dest/; done
 
+# awk
+awk 'BEGIN {FS=","; OFS=","} NR>1 {print $1 ","}'
+the BEGIN part: FS tells awk in input file is seperated by ","
+                OFS tells awk in output file is seperated by ","
+NR > 1, search start from line 2
+" ": text needs to be printed
 
 # list all files with only digits in name
 ls -l |grep -Eo '[[:digits:]]*.jpg'

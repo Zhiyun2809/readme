@@ -72,6 +72,12 @@ $ git branch new-branch
 $ git checkout new-branch
 # combine above 2 steps
 $ git checkout -b new-branch-name
+# push the new branch remotely
+$ git push --set-upstream origin new-branch-name
+$ git push
+
+# 
+
 # get data from remore server
 $ git pull
 
@@ -83,6 +89,7 @@ $ git branch --move old-branch-name new-branch-name
 # merge branch to master
 $ git checkout master
 $ git merge new-branch
+$ git push
 
 # delete branch
 $ git branch -D branch-name
@@ -202,7 +209,9 @@ foldername
 #=====================================================
 # clone
 #=====================================================
-# clone remote master repository
+# clone remote master repository in the local folder demo
+$ mkdir demo
+$ cd demo
 $ git clone https://......git
 
 # downlow all branches from remote repository add .git at the end
