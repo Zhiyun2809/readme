@@ -47,6 +47,10 @@ pd.describe().transpose()
 newdf = df.select_dtypes(include=numeric)
 df.select_dtypes('number').columns
 
+# 
+titles = list(df.select_dtype(inlcude='category')
+titles = list(df.select_dtype(exclude='category')
+
 # get columns or row index
 train_df.columns
 train_df.index
@@ -59,6 +63,8 @@ df['m_hct']=df['m_hct'].rount(1) -> convert to 1 decimal place
 pd.describe(include=['O'])
 pd.describe(include='all')
 
+pd.describe().T
+
 # get 10 instances from df. 
 df.sample(10)
 df.sample(100,replace=True) #allow duplication
@@ -69,6 +75,7 @@ df['printtime'].idxmin(axis=)
 train_df[['Pclass','Survived']].groupby(['Pclass'],as_index=False).mean().sort_values(by='Survived',ascending=False)
 train_df[['log','red_move']].groupby(['log'],as_index=False).agg(['mean','count']).sort_values(by=('red_move','mean'),ascending=False)
 
+# display value frequency
 train_df['smoker'].value_counts()
 train_df['smoker'].value_counts(normalize=True)
 
@@ -88,7 +95,12 @@ data1['Title'] = data1['Title'].apply(lambda x:'Misc' if title_names.loc[x] == T
 combine = [train_df, test_df]
 for dataset in combine:
     dataset['Title'] = dataset.Name.str.extract(' ([A-Za-z]+)\.', expand=False)
-    ps.crosstab(train_df['Title'], train_df['Sex'])
+    pd.crosstab(train_df['Title'], train_df['Sex'])
+
+display(pd.crosstab(df['DEATH_EVENT'],[df['smoking'],
+                                        df['high_blood_pressure'],
+                                        df['sex']],
+                                        dropna=False))
 
 # combine 2 columns
 df['join'] = df['a']+df['b']
@@ -109,6 +121,7 @@ for dataset in combine:
     dataset['Title'] = dataset['Title'].fillna(0)
 # replace
 recipes = recipes.replace(to_replace='Yes',value=1)
+data = data.replace(-1,np.nan)
 #mapping
 for dataset in combine:
     dataset['Sex'] = dataset['Sex'].map({'female':1, 'male':0}).astype(int)
@@ -124,7 +137,9 @@ df.isnull().any().any() -> return False or True
 
 df[df['A'].isnulll()].index
 # alternative
+# get overview of missing data
 df.isnull().sum()
+# get overview of missing data
 df.isnull().sum().sum()
 # list nan
 df.loc[pd.isna(df['date']),:]
@@ -265,6 +280,11 @@ df.drop(['Name','PassengerId'],axis=1)
 # split column into multiple columns
 new = df['pos'].str.split('_',n=1,expand=True)
 df[['new1','new2']]= df['pos'].str.split('_',n=1,expand=True)
+df['new1'],_ = df['pos'].str(split('\n',1).str
+# strip
+data['Min_Salary'],data['Max_Salary'] = data['Salary Estimate'].str.split('-').str
+data['Min_Salary']=data['Min_Salary'].str.strip(' ').str.lstrip('$').str.rstrip('K').fillna(0).astype('int')
+data['Max_Salary']=data['Max_Salary'].str.strip(' ').str.lstrip('$').str.rstrip('K').fillna(0).astype('int')
 # int to string, fill zero ahead of 2 digits
 cad['s']=cad['s'].astype(str).str.zfill(2)
 # replace by the first column
@@ -543,6 +563,18 @@ shift M
 # inline images
 %matplotlib inline
 
+
+# ====================================
+import plotly.express as px
+import plotly.graph_objects as go
+
+fig = go.Figure()
+fig.add_trace(go.Bar(x=df.index, y=df['Min_Salary'],name='Min Salary'))
+fig.add_trace(go.Bar(x=df.index, y=df['Max_Salary'],name='Max Salary'))
+fig.update_layout(title='title',barmode='stack')
+fig.show()
+# ====================================
+
 # 
 0+0: reset kernel
 
@@ -698,8 +730,6 @@ colormap=plt.cm.RdBu
 current_palette = sns.color_palette()
 sns.scatterplot(x='x',y='y',data=df,color=current_palette[0])
 
-
-
 # save figure to pdf
 %pylab inline
 from matplotlib.backends.backend_pdf import PdfPages
@@ -735,6 +765,7 @@ ax.axhline(y=1,color='red',linestyle='-')
 # square plot
 ax.axis('equal')
 ax.get_legend().set_visible(False)
+ax.add_legend(title='title')
 
 
 # 
@@ -1033,6 +1064,10 @@ g = sns.swarmplot(x='category',y='sodium',data=df)
 from scipy.stats import norm
 sns.distplot(df['x'],fit=norm, kde=False,vertical=True)
 
+df_grouped = df.groupby(by='DEATH_EVENT')
+sns.distplot(df_grouped.get_group(0)[title],bins=10,ax=ax,label='No')
+sns.distplot(df_grouped.get_group(1)[title],bins=10,ax=ax,label='Yes')
+
 # joint histogram
 g = sns.jointplot(x='x',y='tip',data=df)
 g.fig.suptitle('title')
@@ -1091,6 +1126,10 @@ g.fig.legend(handles=handles,labels=labels,loc='lower center', ncol=3)
 g.fig.legend(handles=handles,labels=labels,loc='upper left', ncol=3)
 g.fig.subplots_adjust(top=0.92,bottom=0.08)
 
+# remove unneeded (last) subplots
+axs.flat[-1].remove()
+axs.flat[-2].remove()
+
 ## Joinplot -> shows coorelation with p-value
 g = sns.joinplot(x='Protein',y='Total Fat',data=df)
 
@@ -1111,7 +1150,7 @@ g = sns.FacetGrid(df,col='sample',hue='sample',hue_kws=d,col_wrap=2)
 g.map(sns.scatterplot,'under_stain','over_stain')
 #
 # using pointplot
-# palette = 'deep','muted','pastel','bright','dark'
+# palette = 'deep','muted','pastel','bright','dark','set1','set2','husl'
 grid = sns.FacetGrid(train_df, col='Embarked', size=2.2, aspect=1.6)
 grid.map(sns.pointplot, 'Pclass', 'Survived', 'Sex', palette='deep', order=[1,2,3], hue_order=['female','male'])
 grid.add_legend()
@@ -1747,5 +1786,12 @@ plt.axis('off')
 plt.show
 wc.to_file('myfile.jpg')
 
+job_title= data['Job Title'][~pd.isnull(data['Job Title'])]
+wordCloud=WorkCloud(width=450,height=300).generate(' '.join(job_title))
+plt.figure(figsize=(19,9))
+plt.axis('off')
+plt.imshow(workCloud)
+plt.show()
 
+# include variable in label
 plt.plot(x.lstat,x.ldf,'b-',label='posl %.2f'%c)
