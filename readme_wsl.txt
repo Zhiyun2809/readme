@@ -106,3 +106,11 @@ $ ./ssh/config
 $ chmod 0700 .ssh/
 $ chmod 0600 .ssh/*
 
+# copy update or new file
+$ cp -n /src /dest
+
+
+$ rsyn -aq /src /dest
+
+#list only directory
+$ls -d */

@@ -71,18 +71,20 @@ rp.summary_cont(df['libido'].groupby(df['dose']))
 rp.summary_cont(df.groupby(['Fert','Water']))['Yield']
 
 # oneway ANOVA
-stats.f_oneway(df['libido'][df['dose']=='high'],
+import scipy.stats as stats
+fvalue,pvalue=stats.f_oneway(df['libido'][df['dose']=='high'],
                 df['libido'][df['dose']=='low'],
                 df['libido'][df['dose']=='placebo'])
+print(f'{fvalue},{pvalue}')
 
 # or using linear regression
+from statsmodels.api as sm
+from statsmodels.formula.api import ols
 results = ols('libido ~C(dose)',data=df).fit()
 results.summary()
-# to test between the group
 # ANOVA table
 aov_table = sm.stats.anova_lm(results,typ=2)
 aov_table
-
 
 # ====================================================
 # Two way ANOVA 
@@ -91,19 +93,21 @@ aov_table
 # 
 rp.summary_cont(df.groupby(['Fert','Water']))['Yield']
 # test interaction term 
-model = ols('Yield ~C(Fert)*C(Water)',data=df).fit()
+formula = 'Yield ~C(Fert)*C(Water)'
+model = ols(formula=formula,data=df).fit()
 print(f"Overall model F({model.df_model: .0f},{model.df_resid: .0f}) = {model.fvalue: .3f}, p = {model.f_pvalue: .4f}")
 model.summary()
 # create anova table (typ 2 sum of squares)
 res= sm.stats.anova_lm(model,typ=2)
 print(res)
 
-# 
+# 2-Facor ANOVA
 model2 = ols('Yield ~C(Fert)+C(Water)',df).fit()
 model2.summary()
 #get anova table
-res2 = sm.stats.anova_lm(model2, typ= 2)
-print(res2)
+res2_table = sm.stats.anova_lm(model2, typ= 2)
+print(res2_table)
+
 # post-hoc testing
 mc = statsmodels.stats.multicomp.MultiComparison(df['Yield'],df['Fert'])
 mc_results = mc.tukeyhsd()
@@ -124,16 +128,17 @@ print(table)
 # multi
 # Tukeys multi-comparison method
 # Tukeys hsd (honesly significant difference) test
-from statsmodels.stats.multicomp import (pairwise_tukeyhsd,MultiComparison)
-MultiComp = MultiComparison(df['result'],df['log'])
+from statsmodels.stats.multicomp import MultiComparison
+MultiComp = MultiComparison(data=df['result'],groups=df['log'])
 # show all pair-wise comparisons
 print(MultiComp.tukeyhsd().summary())
-
+# same as
 from statismodels.stats.multicomp import pairwise_tukeyhsd
 m_comp = pairwise_tukeyhsd(endog=df['volume'],groups=df['keyword'], alpha=0.05)
 print(m_comp)
 tukey_data = pd.DataFrame(data=m_comp._results_table.data[1:],columns=m_comp._results_table.data[0])
-group1_comp = tukey_data[tukey_data['reject']==True].groupby('group1')
+group1_comp = tukey_data[tukey_data['reject']==True].groupby('group1')['reject'].count()
+group2_comp = tukey_data[tukey_data['reject']==True].groupby('group2')['reject'].count()
 
 # ====================================================
 # Holm-Bonferroni Method
@@ -177,22 +182,23 @@ print(res1.summary())
 print('Parameters: ', res.params)
 print('Standard errors: ', res.bse)
 print('Predicted values: ', res.predict())
+table = smf.stats.anova_lm(m,typ=2)
+print(table)
 
 # use Region as Categorical variables
 m1 = smf.ols(formula='Lottery ~ Literacy + Wealth + C(Region)', data=df,missing='drop' ).fit()
 # remove intercept from a model
 m1 = smf.ols(formula='Lottery ~ Literacy + Wealth + C(Region) -1', data=df,missing='drop' ).fit()
 
-
 # The * means that we want to interaction term in addition each term seperately
 m1 = smf.ols(formula='Lottery ~ Literacy * Wealth + C(Region)', data=df,missing='drop' ).fit()
 # The : means that we want only interaction term 
 m1 = smf.ols(formula='Lottery ~ Literacy : Wealth + C(Region)', data=df,missing='drop' ).fit()
 
-
 x = pd.DataFrame({'lstat':np.linspace(df['lstat'].min(),df['lstat'].max(),100)})
 m = smf.ols(formula='medv ~ 1+lstat',data=df).fit()
 plt.plot(x.lstat,m.predict(x),label='Poly $R^2$=%.2f'%m.rsquared,alpha=0.9)
+
 
 # 1-st Order polynomial
 poly_1 = smf.ols(formula='medv ~ 1 + lstat', data=df).fit()

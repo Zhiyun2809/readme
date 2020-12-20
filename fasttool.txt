@@ -1,0 +1,5 @@
+FastToolTAB 
+Instruments Configuration->RHS_SMS_Test-> [Activate]
+TAB RHC_SMS_Test ->Single Command->ResourceHandling->Device_0->RHC_DEV0_Temp_Controller->Temperature_Controller_Create-> [Execute]
+->RHC_DEV0_Temp_Controller->Temperature_Controller_Set_PID_Parameter->[Execute]  
+TAB RHC_SMS_Test ->Single Command->ResourceHandling->Device_0->RHC_DEV0_Temp_Controller->Temperature_Controller_Set_Configuration-> SetPointTemperature:6000 ->[Execute]  

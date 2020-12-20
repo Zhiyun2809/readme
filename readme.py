@@ -57,7 +57,7 @@ train_df.index
 train_df.columns.values
 
 # convert column to digits
-df['m_hct']=df['m_hct'].rount(1) -> convert to 1 decimal place
+df['m_hct']=df['m_hct'].round(1) -> convert to 1 decimal place
 
 # displace categorical feature (no numerical values)
 pd.describe(include=['O'])
@@ -74,6 +74,8 @@ df['printtime'].idxmin(axis=)
 
 train_df[['Pclass','Survived']].groupby(['Pclass'],as_index=False).mean().sort_values(by='Survived',ascending=False)
 train_df[['log','red_move']].groupby(['log'],as_index=False).agg(['mean','count']).sort_values(by=('red_move','mean'),ascending=False)
+
+df['smoker'].value_counts()
 
 # display value frequency
 train_df['smoker'].value_counts()
@@ -322,6 +324,15 @@ df.sample(n=2,random_state=2)-> get the same row everytime
 map_2d=planck_map.unstack()
 type(map_2d)
 
+# multicolumn, muliindex flatten
+dst = df[['1uL_wbc','sample','log']].groupby(['log','sample'],as_index=False).agg(['mean','std','count'])
+dst['1uL_wbc','cv[%]'] = dst['1uL_wbc','std']/dst['1uL_wbc','mean']*100
+# flat multi index
+dst.reset_index(inplace=True)
+# collape multi level columns 
+dst.columns = [' '.join(col).strip() for col in dst.columns.values]
+
+
 # get corration
 df_corr = df.corr()
 
@@ -363,10 +374,15 @@ df2['Date'] = pd.to_datetime(df2['Date'])
 df2.set_index('Date', inplace=True) #set Date as index
 df2['Close'].plot() #plot
 # add 5 business days
-import datetime as dt
+import datetime 
 from pandas.tseries.offsets import BDay
-ts = pd.Timestamp(dt.datetime.now())
+ts = pd.Timestamp(datetime.datetime.now())
 >>> ts + BDay(5)
+
+date_string = datetime.datetime.strptime("","")
+
+hour_ago = (datetime.datetime.now() - datetime.timedelta(hours=1)).strftime("%Y-%m-%d %H:%M:%S")
+now = datetime.datetime.now().srftime("%Y-%m-%d %H:%M:%S")
 
 base = datetime.datetime.today()
 date_list = [base - datetime.timedelta(days=x) for x in range(0, numdays)]
@@ -620,6 +636,8 @@ os.remove('file.txt')
 os.path.isdir(folder)
 #get path pwd
 path=os.path.abspath(os.getcwd())
+#get path python
+os.path.realpath(sys.executable)
 # get paht 1 level up
 path = os.path.abspath(os.path.join(os.getcwd(),".."))
 # get paht 2 level up
@@ -656,6 +674,10 @@ myPath_sub1 = myPath/'sub1'
 l = [1,1,2,2,3,3,4,5]
 set([x for x in l if l.count(x)>1])
 
+#reverse a list
+list1 = [i for i in range(10)]
+list1_rev = list1[::-1]
+
 #list only files
 file_lsit = [f for f in os.listdir(folder) if os.path.isfile(os.path.join(folder,f))]
 
@@ -665,6 +687,9 @@ result = [(0 if i+1 > len(a) else a[i]) for i in range(maxlen)]
 
 # find common elements in two lists
 common = [i for i in x if i in y]
+
+# replace none alnum with '_'
+ff = [c if c.isalnum() else '_' for i in title]
 
 # remove the last element in the list
 my_list.pop()
@@ -694,6 +719,8 @@ zipObj= zip(list_samples,list_donors)
 dict_sample = dict(zipObj)
 df['donor']=df['sample'].map(dict_sample)
 
+# melt columns to rows
+df_melt = pd.melt(df,id_vars='grp_pair',value_vars=cols,value_name='p_value')
 #concat two dictionary
 d1.update(d2)
 #or
@@ -767,6 +794,15 @@ ax.axis('equal')
 ax.get_legend().set_visible(False)
 ax.add_legend(title='title')
 
+# remove legend title
+h,l = ax.get_legend_handles_labels()
+ax.legend(h[1:],l[1:],ncol=3,loc='upper center',
+        bbox_to_anchor=(0.5,1.25),
+        columnspacing = 1.3,labelspacing = 0.0,
+        handletextpad = 0, handlelength = 1.5,
+        fancybox=True, shadow=True)
+        
+
 
 # 
 plt.rcParams.update({'figure.figsize':(8,6),'figure.dpi':120})
@@ -796,6 +832,8 @@ img.save('image.png','PNG')
 #===============================
 # get rid of \n
 .rstrip()
+# String.strip() -> remove leading and trailing white spaces
+.strip()
 
 
 
@@ -833,6 +871,9 @@ dst['rbc','mean']
 # add new column
 dst[('rbc','cv')]=dst['rbc','std']/dst['rbc','mean']*100
 
+#===============================
+# drop non numeric rows
+ds = ds[pd.to_numeric(ds['slide'],errors='coerce').notnull()]
 
 #===============================
 #Jupyter notebook
@@ -927,13 +968,7 @@ for i, row in enumerate(rows,1):
         ws.cell(row=i,column=j,value=col)
 wb.save('file.xlsx')
 
-#===============================
-# 
-try:
-    ..
-except Exception as e:
-    print(e)
-    raise e
+
 
 
 #===============================
@@ -1037,14 +1072,17 @@ sns.catplot(x='speed',y='tc',hue='sample',col='type',col_wrap=2,data=df)
 g.set_axis_labels("","Totla number of TargetCells")
 plt.subplots_adjust(top=0.8)
 g.fig.suptitle('Title')
+g.set_ylabels('ylabel')
 
 g = sns.catplot(x='class',hue='who',col='survived',data=titanic,kind='count',height=4,aspect=.7)
 (g.set_axis_labels('xlabel','ylabel')
-        .set_xticklabels(['','',''])
+        .set_xticklabels(['','',''],rotation=90)
         .set_title('{col_name}{col_var}')
         .set(ylim=(0,1))
         .despine(left=True))
 sns.set_context('paper',fontsize=1.2)
+
+g.set_xticklabels(g.get_xticklabels(),rotation=90)
 
 # lmplot
 # use 'hue' argument to provide a factor variable
@@ -1096,6 +1134,11 @@ handles, labels = plt.gca().get_legend_handles_labels()
 by_label = dict(zip(labels,handles))
 plt.legend(by_label.values(),by_label.keys(),bbox_to_anchor=(1.05,2),loc=2)
 
+by_label={}
+handles, labels = axs[i].get_legend_handles_labels()
+by_label.update(dict(zip(labels,handles)))
+
+
 plt.scatter(df_red['x'],df_red['y'],s=df_red['count'])
 
 # add margin to plot
@@ -1125,6 +1168,7 @@ g.fig.legend(handles=handles,labels=labels,loc='upper center', ncol=1)
 g.fig.legend(handles=handles,labels=labels,loc='lower center', ncol=3)
 g.fig.legend(handles=handles,labels=labels,loc='upper left', ncol=3)
 g.fig.subplots_adjust(top=0.92,bottom=0.08)
+g.fig.suptitle('title',y=1.08)
 
 # remove unneeded (last) subplots
 axs.flat[-1].remove()
@@ -1150,11 +1194,14 @@ g = sns.FacetGrid(df,col='sample',hue='sample',hue_kws=d,col_wrap=2)
 g.map(sns.scatterplot,'under_stain','over_stain')
 #
 # using pointplot
-# palette = 'deep','muted','pastel','bright','dark','set1','set2','husl'
+# palette = 'deep','muted','pastel','bright','dark','Set1','Set2','husl',
+# 'hsv','rainbow'
 grid = sns.FacetGrid(train_df, col='Embarked', size=2.2, aspect=1.6)
 grid.map(sns.pointplot, 'Pclass', 'Survived', 'Sex', palette='deep', order=[1,2,3], hue_order=['female','male'])
 grid.add_legend()
 #
+# lineplot
+sns.lineplot()
 # barplot
 sns.barplot(train_df['Sex'],train_df['Survived'])
 #ci= None, or sd 
@@ -1193,6 +1240,17 @@ fig,ax = plt.subplots()
 for i in label in enumerate(labels):
     ax.annotate(label, (X.iloc[i],y.iloc[i]))
 
+# another subplots
+plt.figure(1,figsize=(15,6))
+n=0
+for x in ['age','income','spend']:
+    n += 1
+    plt.subplot(1,3,n)
+    plt.subplots_adjust(hspace=0.5, wspace=0.5)
+    sns.distplot(df[x],bins=20)
+    plt.title('Distplot of {}'.format(x))
+plt.show()
+
 
 # flexible use of subplot
 # option 1
@@ -1222,6 +1280,7 @@ plt.xlabel('xlabel')
 plt.ylabel('ylabel')
 plt.legend()
 plt.grid()
+plt.grid(axis='x')
 plt.subplot(2,1,2)
 plt.plot(x2,y2,'o-',label='training data')
 plt.title('title 2')
@@ -1303,10 +1362,15 @@ ax.invert_yaxis()
 
 #  adjust ticks xtick, ytick
 from matplotlib import ticker
-tick_locator = ticker.MaxNLocator(10)
+tick_locator = ticker.MaxNLocator(10) #max number of tickers
+tick_locator = ticker.MultipleLocator(1) # 
+
 ax.xaxis.set_major_locator(tick_locator)
 
 #================================================== 
+# undo seaborn set_style
+import matplotlib as mpl
+mpl.rcParams.update(mpl.rcParamsDefault)
 #assign same color palette to different plot
 sns.set_style('white',font_scale=1.2)
 pal = sns.color_palette('Paired')
@@ -1795,3 +1859,74 @@ plt.show()
 
 # include variable in label
 plt.plot(x.lstat,x.ldf,'b-',label='posl %.2f'%c)
+
+
+# return function annotation
+def kinetic_energy(m:'in KG',v:'in M/S') ->'Joules':
+    return 1/2*m*v**2
+>> kinetic_energy.__annotations__
+{'return': 'Joules','v':'in M/S','m':'in KG'}
+
+
+# ====
+# run python in command line 
+import sys
+def main():
+    pass
+
+if __name__ == "__main__":
+    sys.exit(main())
+# Parser for command-line options
+import argparse 
+
+
+help(WorkObj)
+
+
+return NotImplemented
+
+def isoformat(self):
+    pass
+__str__ = isoformat
+
+#===============================
+# 
+try:
+    ..
+except KeyboardInterrupt:
+    return 0 # successful exit
+except ValueError:
+    raise ValueError("{} is not a valie time format".format(time))
+    return 2
+except (StatisticsError, ZeroDivisionError, TypeError):
+    return []
+except Exception as e:
+    if DEBUG or TESTRUN or verbose:
+        print(e)
+        raise e
+    reurn 2 # unit command line syntax error
+k
+
+
+
+
+def convert_to_number(value: str) -> Union[float,str]:
+    try:
+        return float(value)
+    except ValueError:
+        return value.strip()
+def drop:none(values: List[float]) -> List[float]:
+    try:
+        return [x for x in values if x is not None]
+    except TypeError:
+        return values
+
+
+# unittest
+import unittest
+# run unittest in console 
+if __name__ == '__main__':
+    unittest.main()
+# run unittest in Jupyter:
+if __name__ == '__main__':
+    unittest.main(argv=['first-arg-is-ignored'], exit=False)
