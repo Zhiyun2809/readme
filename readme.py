@@ -333,8 +333,21 @@ dst.reset_index(inplace=True)
 dst.columns = [' '.join(col).strip() for col in dst.columns.values]
 
 
+import matplotlib.pyplot as plt
 # get corration
 df_corr = df.corr()
+f = plt.figure(figsize=(19,15))
+plt.matshow(df.corr(),fignum=f.number)
+plt.xticks(range(df.shape[1]), df.columns,fontsize=14,rotation=45)
+plt.yticks(range(df.shape[1]), df.columns,fontsize=14)
+cb = plt.colorbar()
+cb.ax.tick_params(labelsize=14)
+plt.title('Correlation Matrix', fontsize=16)
+# alternative
+styler=df.corr().style.background_gradient(cmap='coolwarm').set_precision(2)
+styler=df.corr().style.background_gradient(cmap='coolwarm').set_properties(**{'font-size':'0pt'})
+display(styler)
+
 
 df.query()
 df.query('country="China" and year == 2015')
@@ -382,10 +395,13 @@ ts = pd.Timestamp(datetime.datetime.now())
 date_string = datetime.datetime.strptime("","")
 
 hour_ago = (datetime.datetime.now() - datetime.timedelta(hours=1)).strftime("%Y-%m-%d %H:%M:%S")
-now = datetime.datetime.now().srftime("%Y-%m-%d %H:%M:%S")
+now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 base = datetime.datetime.today()
 date_list = [base - datetime.timedelta(days=x) for x in range(0, numdays)]
+
+datetime.strptime : convert string to datetime
+datetime.strftime : convert datetime to string
 
 # conditionally multiply column
 df.loc[df['vol']=='0.5uL',['rbc','wbc','plt']] *=2.0
@@ -1161,7 +1177,7 @@ sqp.qqplot(iris,x="sepal_length",y="petal_length",height=4,aspec=1.5,)
 ## Pairplot
 iris = sns.load_dataset('iris')
 g = sns.pairplot(iris,hue='species',palette='husl',markers='d',size=2.5,
-        plot_kws={'s':40,'alpha':1.0,'lw':0.5,'edgecolor':'k'})
+        plot_kws={'s':40,'alpha':1.0,'lw':0.5,'edgecolor':'k'},vars=['length','width'])
 handles = g._legend_data.value()
 labels = g._legend_data.keys()
 g.fig.legend(handles=handles,labels=labels,loc='upper center', ncol=1)
