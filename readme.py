@@ -283,6 +283,7 @@ df.drop(['Name','PassengerId'],axis=1)
 new = df['pos'].str.split('_',n=1,expand=True)
 df[['new1','new2']]= df['pos'].str.split('_',n=1,expand=True)
 df['new1'],_ = df['pos'].str(split('\n',1).str
+df['log'] = df['pos'].str.split('_').str[1]  # get the second element
 # strip
 data['Min_Salary'],data['Max_Salary'] = data['Salary Estimate'].str.split('-').str
 data['Min_Salary']=data['Min_Salary'].str.strip(' ').str.lstrip('$').str.rstrip('K').fillna(0).astype('int')
@@ -797,6 +798,10 @@ axs.hist(x)
 axs.set_xticks(axs.get_xticks()[::2])
 plt.show()
 
+# subplot different size
+fig,axs = plt.subplots(3,1,gridspec_kw={'height_ratios':[2,1,1],
+                                        'width_ratios' :[1,2,2]})
+
 # scientific label format
 axs.ticklabel_format(axis='x',style='sci',scilimits=(0,2))
 
@@ -1104,6 +1109,12 @@ g.set_xticklabels(g.get_xticklabels(),rotation=90)
 # use 'hue' argument to provide a factor variable
 sns.lmplot(x='x',y='y',data=df,fit_reg=False,hue='species',legend=False,palette='Set2')
 
+# get equation of regression
+from scipy import stats
+slope,intercept,r_value,p_value, std_err = stats.linregress(df['x'],df['y'])
+p = sns.regplot(x='x',y='y',data=df,line_kws={'label':"y={0:.2f}x + {1: .2f}}".format(slope,intercept)})
+p.legend()
+
 g = sns.lmplot(x='total_bill',y='tip',row='sex',col='time',
         data=tip, height=3)
 g = (g.set_axis_labels('Total bill','Tip')
@@ -1383,6 +1394,16 @@ tick_locator = ticker.MultipleLocator(1) #
 
 ax.xaxis.set_major_locator(tick_locator)
 
+#================================================== 
+# assign color for different plot
+import matplotlib.colors as mcolors
+colors = mcolors.BASE_COLORS
+colors = mcolors.TABLEAU_COLORS
+colors = mcolors.TABLEAU_COLORS
+by_hsv = sorted((tuple(mcolors.rgb_to_hsv(mcolors.to_rgb(color))),
+                 name)
+                for name, color in colors.items())
+names = [name for hsv, name in by_hsv]
 #================================================== 
 # undo seaborn set_style
 import matplotlib as mpl
