@@ -235,3 +235,11 @@ clf = VotingClassifier([('lsvc',svm.LinearSVC()),
                         ('rfor',RandomForestClassifier())])
 confidence = clf.score(X_test,y,test)
 predictions = cls.predict(X_test)
+
+
+# Arima
+#https://www.machinelearningplus.com/time-series/arima-model-time-series-forecasting-python/
+# check stationarity of time series
+from pmdarima.arima.stationarity import ADFTest
+adf_test = ADFTest(alpha=0.05)
+p_val, should_diff = adf_test.should_diff(y)

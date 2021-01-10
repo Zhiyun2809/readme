@@ -1405,9 +1405,11 @@ by_hsv = sorted((tuple(mcolors.rgb_to_hsv(mcolors.to_rgb(color))),
                 for name, color in colors.items())
 names = [name for hsv, name in by_hsv]
 #================================================== 
+plt.rcParams.update({'figure.figsize':(9,7),'figure.dpi':120})
 # undo seaborn set_style
 import matplotlib as mpl
 mpl.rcParams.update(mpl.rcParamsDefault)
+
 #assign same color palette to different plot
 sns.set_style('white',font_scale=1.2)
 pal = sns.color_palette('Paired')

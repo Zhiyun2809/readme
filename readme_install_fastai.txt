@@ -6,3 +6,8 @@ pip install --user XX
 
 pip install ipywidgets
 jupyter nbextension enable --py widgetsnbextension
+
+
+# request
+pip install requests_html
+pip install yahoo_fin
