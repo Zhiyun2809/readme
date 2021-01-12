@@ -89,7 +89,24 @@ $ git branch --move old-branch-name new-branch-name
 # merge branch to master
 $ git checkout master
 $ git merge new-branch
+$ # solve conflict in files 
+$ git add .
+$ git commit -m "merge"
+$ git merge new-branch
 $ git push
+
+# Start a new feature
+git checkout -b new-feature master
+# Edit some files
+git add <file>
+git commit -m "Start a feature"
+# Edit some files
+git add <file>
+git commit -m "Finish a feature"
+# Merge in the new-feature branch
+git checkout master
+git merge new-feature
+git branch -d new-feature
 
 # delete branch
 $ git branch -D branch-name
@@ -154,8 +171,14 @@ $ git init
 $ git remote add origin https://github.com/Zhiyun2809/roche01.git
 $ git remote -v
 $ git fetch origin
-$ git checkout --tractk origin/dry #check out branch
+$ git checkout --track origin/dry #check out branch
 $ git checkout --track origin/master #check out mastert
+$ git pull
+
+$ git fetch --all # fetch all git branches
+$ git pull -all
+
+$ git branch -r # list remote branches
 
 # chekcout remote 
 $ git checkout -b new-branch-name origin/branch

@@ -243,3 +243,57 @@ predictions = cls.predict(X_test)
 from pmdarima.arima.stationarity import ADFTest
 adf_test = ADFTest(alpha=0.05)
 p_val, should_diff = adf_test.should_diff(y)
+
+
+
+# FASTAI
+# tabular
+dep_var = 'Survived'
+#cat_names = data.select_dtypes(exclude=['int', 'float']).columns
+cat_names = [ 'Sex', 'Ticket', 'Cabin', 'Embarked']
+
+#cont_names = data.select_dtypes([np.number]).columns
+cont_names = [ 'Age', 'SibSp', 'Parch', 'Fare']
+
+# Transformations
+procs = [FillMissing, Categorify, Normalize]
+
+# Test Tabular List
+test = TabularList.from_df(test, cat_names=cat_names, cont_names=cont_names, procs=procs)
+
+# Train Data Bunch
+data = (TabularList.from_df(train, path='.', cat_names=cat_names, cont_names=cont_names, procs=procs)
+                        .split_by_idx(list(range(0,200)))
+                        .label_from_df(cols = dep_var)
+                        .add_test(test, label=0)
+                        .databunch())
+
+data.show_batch(rows=10)
+
+
+
+# Create deep learning model
+learn = tabular_learner(data, layers=[1000, 200, 15], metrics=accuracy, emb_drop=0.1, callback_fns=ShowGraph)
+
+# select the appropriate learning rate
+learn.lr_find()
+
+# we typically find the point where the slope is steepest
+learn.recorder.plot()
+
+# Fit the model based on selected learning rate
+learn.fit_one_cycle(15, max_lr=slice(1e-03))
+
+# Analyse our model
+learn.model
+learn.recorder.plot_losses()
+
+
+# Predict our target value
+predictions, *_ = learn.get_preds(DatasetType.Test)
+labels = np.argmax(predictions, 1)
+
+# create submission file to submit in Kaggle competition
+submission = pd.DataFrame({'PassengerId': test_id, 'Survived': labels})
+submission.to_csv('submission.csv', index=False)
+submission.head()
