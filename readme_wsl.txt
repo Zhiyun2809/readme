@@ -59,6 +59,8 @@ NR > 1, search start from line 2
 ls -l |grep -Eo '[[:digits:]]*.jpg'
 # alternative
 ls -l |grep -E '[0-9]{1,3}'.jpg			[0-9] with {1,3} digits number
+# in range
+for i in {200..233}; do echo $i.zip; done
 
 # extract info from jpg
 identify -verbose 12.jpg |grep -E "frame|^x|^y"

@@ -273,7 +273,8 @@ data.show_batch(rows=10)
 
 
 # Create deep learning model
-learn = tabular_learner(data, layers=[1000, 200, 15], metrics=accuracy, emb_drop=0.1, callback_fns=ShowGraph)
+#learn = tabular_learner(data, layers=[1000, 200, 15], metrics=accuracy, emb_drop=0.1, callback_fns=ShowGraph)
+learn = tabular_learner(data, layers=[1000, 200, 15], metrics=rmse, emb_drop=0.1, callback_fns=ShowGraph)
 
 # select the appropriate learning rate
 learn.lr_find()
@@ -288,6 +289,9 @@ learn.fit_one_cycle(15, max_lr=slice(1e-03))
 learn.model
 learn.recorder.plot_losses()
 
+# save model
+learn.model_dir = '/content/drive/My Drive/Colab/zcml2/model/'
+learn.save('model')
 
 # Predict our target value
 predictions, *_ = learn.get_preds(DatasetType.Test)
@@ -297,3 +301,9 @@ labels = np.argmax(predictions, 1)
 submission = pd.DataFrame({'PassengerId': test_id, 'Survived': labels})
 submission.to_csv('submission.csv', index=False)
 submission.head()
+
+# load model for further training
+learn2 = tabular_learner(data,layers=[1000,200,15],metrics=rmse,emb_drop=0.1,callback_fns=ShowGraph)
+learn2.model_dir = '/content/drive/My Drive/Colab/zcml2/model/'
+learn2.load('model')
+learn2.fit_one_cycle(100,1e-2)

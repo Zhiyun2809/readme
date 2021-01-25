@@ -402,7 +402,9 @@ base = datetime.datetime.today()
 date_list = [base - datetime.timedelta(days=x) for x in range(0, numdays)]
 
 datetime.strptime : convert string to datetime
+datetime.datetime.strptime('2020-10-01',"%Y-%m-%d")
 datetime.strftime : convert datetime to string
+dd.strftime("%Y-%m-%d")
 
 # conditionally multiply column
 df.loc[df['vol']=='0.5uL',['rbc','wbc','plt']] *=2.0
@@ -874,6 +876,8 @@ print('{:^20s}'.format('Align center'))
 # print list with format
 grp_format = " ".join(["{:>10s}".format(x) for x in x_list])
 print('{}'.format(grp_format))
+
+['{:.2f}'.format(i) for i in lsit_i]
 
 # string format
 print('{:5d}'.format(1))-> 00001
@@ -1944,10 +1948,6 @@ except Exception as e:
         print(e)
         raise e
     reurn 2 # unit command line syntax error
-k
-
-
-
 
 def convert_to_number(value: str) -> Union[float,str]:
     try:
@@ -1960,12 +1960,23 @@ def drop:none(values: List[float]) -> List[float]:
     except TypeError:
         return values
 
-
 # unittest
 import unittest
-# run unittest in console 
+# run unittest in console
 if __name__ == '__main__':
     unittest.main()
 # run unittest in Jupyter:
 if __name__ == '__main__':
     unittest.main(argv=['first-arg-is-ignored'], exit=False)
+
+
+# logging
+import logging
+logging.basicConfig(format='%(asctime)s |%(levelname)s:%(lineno)4d -%(funcName)8s-%(message)s')
+
+self.logger = logging.getLogger('Hema')
+self.logger.setLevel(logging.INFO)
+# print info
+self.logger.info(f'{fname}')
+self.logger.debug(f'{fname}')
+
